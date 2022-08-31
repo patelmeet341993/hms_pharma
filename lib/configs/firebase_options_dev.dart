@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options_dev.dart';
+/// import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
@@ -53,12 +53,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC1RuC3Erxei0GkyMs52fn-fwGeTkebBvE',
-    appId: '1:864011699942:web:ad3995e6ecfb592586dd27',
-    messagingSenderId: '864011699942',
-    projectId: 'hospital-management-dev',
-    authDomain: 'hospital-management-dev.firebaseapp.com',
-    storageBucket: 'hospital-management-dev.appspot.com',
-    measurementId: 'G-0YGZF8VQLH',
+    apiKey: "AIzaSyC1RuC3Erxei0GkyMs52fn-fwGeTkebBvE",
+    appId: "1:864011699942:web:4167355a306adcca86dd27",
+    messagingSenderId: "864011699942",
+    projectId: "hospital-management-dev",
+    authDomain: "hospital-management-dev.firebaseapp.com",
+    storageBucket: "hospital-management-dev.appspot.com",
+    measurementId: "G-MQJQPR16KH",
   );
 }

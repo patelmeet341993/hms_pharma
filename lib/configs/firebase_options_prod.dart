@@ -53,12 +53,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB5PBnPTAdv5HRQire3CoGGhrEIdepvqrE',
-    appId: '1:237890393456:web:ba3bf53858ba1f44ad6bb5',
-    messagingSenderId: '237890393456',
-    projectId: 'hospital-management-bf6ef',
-    authDomain: 'hospital-management-bf6ef.firebaseapp.com',
-    storageBucket: 'hospital-management-bf6ef.appspot.com',
-    measurementId: 'G-K2NLRJ8KCX',
+    apiKey: "AIzaSyB5PBnPTAdv5HRQire3CoGGhrEIdepvqrE",
+    appId: "1:237890393456:web:f7c3b03537f4d20cad6bb5",
+    messagingSenderId: "237890393456",
+    projectId: "hospital-management-bf6ef",
+    authDomain: "hospital-management-bf6ef.firebaseapp.com",
+    storageBucket: "hospital-management-bf6ef.appspot.com",
+    measurementId: "G-DETY8GCQGJ"
   );
 }
