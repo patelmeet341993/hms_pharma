@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> checkLogin() async {
     await Future.delayed(Duration(seconds: 3));
 
-    if(Random().nextBool()) {
+    if(true) {
       Navigator.pushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
     }
     else {

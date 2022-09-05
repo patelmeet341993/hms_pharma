@@ -21,4 +21,15 @@ class Styles {
 
   static const Color lightAppBarColor = Color(0xffffffff);
   static const Color darkAppBarColor = Color(0xff2e343b);
+
+  static const Color lightTextFiledFillColor = Colors.white;
+  static const Color darkTextFiledFillColor = Colors.black;
+
+  static Color lightHoverColor = Colors.grey.withOpacity(0.05);
+  static Color darkHoverColor = Colors.grey.withOpacity(0.5);
+
+  static Color lightFocusedTextFormFieldColor = Colors.blue.withOpacity(0.05);
+  static Color darkFocusedTextFormFieldColor = Colors.blue.withOpacity(0.5);
+
+
 }
