@@ -1,9 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../controllers/authentication_controller.dart';
 import '../controllers/navigation_controller.dart';
+import '../models/admin_user_model.dart';
+import '../utils/logger_service.dart';
 import 'authentication/login_screen.dart';
 import 'homescreen/homescreen.dart';
 
@@ -20,15 +21,17 @@ class _SplashScreenState extends State<SplashScreen> {
   late ThemeData themeData;
 
   Future<void> checkLogin() async {
-    await Future.delayed(Duration(seconds: 3));
+    // await Future.delayed(Duration(seconds: 2));
 
-    if(Random().nextBool()) {
-      NavigationController.isFirst = false;
-      Navigator.pushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
+    AdminUserModel? user = await AuthenticationController().isUserLoggedIn();
+    Log().i("User From isUserLoggedIn:$user");
+
+    NavigationController.isFirst = false;
+    if(user != null) {
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainScreenNavigator.currentContext!, HomeScreen.routeName, (route) => false);
     }
     else {
-      NavigationController.isFirst = false;
-      Navigator.pushNamedAndRemoveUntil(context, LoginScreen.routeName, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainScreenNavigator.currentContext!, LoginScreen.routeName, (route) => false);
     }
   }
 
