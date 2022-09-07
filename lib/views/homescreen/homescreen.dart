@@ -1,13 +1,10 @@
+
+import 'package:pharma/views/homescreen/components/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:pharma/providers/home_page_provider.dart';
-import 'package:pharma/views/dashboard/dashboard_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:side_navigation/side_navigation.dart';
 
 import '../../configs/app_strings.dart';
-import 'components/dashboard_header.dart';
-import 'components/side_menu.dart';
+import '../dashboard/dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = "/HomeScreen";
@@ -18,96 +15,97 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late ThemeData themeData;
-  List<HomeScreenModel> views = [
-    HomeScreenModel(
-      headerTitle: AppStrings.dashboard,
-        bodyWidget:const DashBoardScreen()
-    ),
-    HomeScreenModel(
-      headerTitle: AppStrings.history,
-      bodyWidget: const Text(AppStrings.history),
-    ),
-    HomeScreenModel(
-      headerTitle: AppStrings.scanner,
-      bodyWidget: Container(
-        child: const Text(AppStrings.scanner),
-      ),
-    ),
-    HomeScreenModel(
-      headerTitle: AppStrings.logout,
-      bodyWidget: const Text(AppStrings.logout),
-    )
-  ];
 
+  late ThemeData themeData;
 
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
-    return Scaffold(
-      body: getMainBody()
-    );
+    return mainBody();
+    // return Container(
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       title: const Text("Home Screen"),
+    //       actions: [
+    //         IconButton(
+    //           onPressed: () {
+    //             AuthenticationController().logout(context: context);
+    //           },
+    //           icon: const Icon(Icons.logout),
+    //         )
+    //       ],
+    //     ),
+    //     body: Center(
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: [
+    //           const Text("Home Body"),
+    //           const SizedBox(height: 20,),
+    //           Consumer<AdminUserProvider>(
+    //             builder: (BuildContext context, AdminUserProvider adminUserProvider, Widget? child) {
+    //               AdminUserModel? adminUserModel = adminUserProvider.getAdminUserModel();
+    //               if(adminUserModel == null) {
+    //                 return const Text("Not Logged in");
+    //               }
+    //               return Column(
+    //                 children: [
+    //                   Text("User Name:${adminUserProvider.getAdminUserModel()!.name}"),
+    //                   Text("User Role:${adminUserProvider.getAdminUserModel()!.role}"),
+    //                 ],
+    //               );
+    //             },
+    //           ),
+    //           const SizedBox(height: 20,),
+    //           FlatButton(
+    //             onPressed: () {
+    //               VisitController().createDummyVisitDataInFirestore();
+    //               // PatientController().createDummyPatientDataInFirestore();
+    //             },
+    //             child: const Text("Create Visit"),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
-  Widget getMainBody(){
-    return Consumer<HomePageProvider>(
-      builder: (context,HomePageProvider provider,__) {
-        return SafeArea(
-            child:Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SideNavigationBar(
-                  theme: SideNavigationBarTheme(
-                      backgroundColor: themeData.drawerTheme.backgroundColor,
-                      itemTheme: const SideNavigationBarItemTheme(),
-                      togglerTheme: const SideNavigationBarTogglerTheme(),
-                      dividerTheme: const SideNavigationBarDividerTheme(showHeaderDivider: true, showMainDivider: true, showFooterDivider: false)),
-                  selectedIndex: provider.homeTabIndex,
-                  header: const SideNavigationBarHeader(
-                    image: Icon(Icons.medical_information),
-                    title:  Text(AppStrings.HMSpharmacy),
-                    subtitle: SizedBox()
-                  ),
+  Widget mainBody(){
+    return CustomBottomNavigation(
+      icons: const [
+        Icons.dashboard_outlined,
+        Icons.history,
+        Icons.file_copy_outlined,
+        Icons.logout_outlined
+      ],
+      activeIcons: const [
+        Icons.dashboard,
+        Icons.history,
+        Icons.file_copy,
+        Icons.logout
 
-                  items: const [
-                    SideNavigationBarItem(
-                      icon: Icons.dashboard,
-                      label: AppStrings.dashboard,
-                    ),
-                    SideNavigationBarItem(
-                      icon: FontAwesomeIcons.rectangleList,
-                      label: AppStrings.history,
-                    ),
-                    SideNavigationBarItem(
-                      icon: FontAwesomeIcons.qrcode,
-                      label: AppStrings.scanner,
-                    ),
-                    SideNavigationBarItem(
-                      icon: Icons.logout,
-                      label: AppStrings.logout,
-                    ),
-                  ],
-                  onTap: (index) {
-                    provider.setHomeTabIndex(index);
-                  },
-                ),
-                const VerticalDivider(),
-                Expanded(
-                  child: views.elementAt(provider.homeTabIndex).bodyWidget
-                ),
-              ],
-            )
-        );
-      }
+      ],
+      screens: [
+        DashBoardScreen(),
+        Container(child: const  Text(AppStrings.history),),
+        Container(child: const Text(AppStrings.scanner),),
+        Container(child: const Text(AppStrings.logout),),
+      ],
+      titles: const [AppStrings.dashboard, AppStrings.history, AppStrings.scanner,AppStrings.logout],
+      color: themeData.colorScheme.onBackground,
+      activeColor: themeData.colorScheme.primary,
+      navigationBackground: themeData.backgroundColor,
+      brandTextColor: themeData.colorScheme.onBackground,
+      initialIndex: 0,
+      splashColor: themeData.splashColor,
+      highlightColor: themeData.highlightColor,
+      backButton: Container(),
+      floatingActionButton: Container(),
+      iconSize: 20,
+      activeIconSize: 20,
+      verticalDividerColor: themeData.dividerColor,
+      bottomNavigationElevation: 8,
     );
   }
-}
-
-
-class HomeScreenModel {
-  String headerTitle = AppStrings.dashboard;
-  Widget bodyWidget = Container();
-
-  HomeScreenModel({required this.headerTitle, required this.bodyWidget});
 }

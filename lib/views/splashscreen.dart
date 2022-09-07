@@ -5,6 +5,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'authentication/login_screen.dart';
 import 'homescreen/homescreen.dart';
+import 'homescreen/homescreen3.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = "/SplashScreen";
