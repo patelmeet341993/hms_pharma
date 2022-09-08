@@ -17,6 +17,12 @@ class PatientGender {
   static const String other = "Other";
 }
 
+class MedicineType {
+  static const String tablet = "Tablet";
+  static const String syrup = "Syrup";
+  static const String other = "Other";
+}
+
 class AdminUserType {
   static const String admin = "Admin";
   static const String doctor = "Doctor";
