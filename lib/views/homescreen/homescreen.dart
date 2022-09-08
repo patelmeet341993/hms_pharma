@@ -1,6 +1,7 @@
 
 import 'package:pharma/views/homescreen/components/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:pharma/views/profile.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/app_strings.dart';
@@ -25,101 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Home Screen"),
-          actions: [
-            IconButton(
-              onPressed: () {
-                AuthenticationController().logout(context: context);
-              },
-              icon: Icon(Icons.logout),
-            )
-          ],
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("Home Body"),
-              SizedBox(height: 20,),
-              Consumer<AdminUserProvider>(
-                builder: (BuildContext context, AdminUserProvider adminUserProvider, Widget? child) {
-                  AdminUserModel? adminUserModel = adminUserProvider.getAdminUserModel();
-                  if(adminUserModel == null) {
-                    return Text("Not Logged in");
-                  }
-                  return Column(
-                    children: [
-                      Text("User Name:${adminUserProvider.getAdminUserModel()!.name}"),
-                      Text("User Role:${adminUserProvider.getAdminUserModel()!.role}"),
-                    ],
-                  );
-                },
-              ),
-              SizedBox(height: 20,),
-              FlatButton(
-                onPressed: () {
-                  // VisitController().createDummyVisitDataInFirestore();
-                  // PatientController().createDummyPatientDataInFirestore();
-                },
-                child: Text("Create Visit"),
-              ),
-            ],
-          ),
-        ),
-      ),
     themeData = Theme.of(context);
     return mainBody();
-    // return Container(
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       title: const Text("Home Screen"),
-    //       actions: [
-    //         IconButton(
-    //           onPressed: () {
-    //             AuthenticationController().logout(context: context);
-    //           },
-    //           icon: const Icon(Icons.logout),
-    //         )
-    //       ],
-    //     ),
-    //     body: Center(
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text("Home Body"),
-    //           const SizedBox(height: 20,),
-    //           Consumer<AdminUserProvider>(
-    //             builder: (BuildContext context, AdminUserProvider adminUserProvider, Widget? child) {
-    //               AdminUserModel? adminUserModel = adminUserProvider.getAdminUserModel();
-    //               if(adminUserModel == null) {
-    //                 return const Text("Not Logged in");
-    //               }
-    //               return Column(
-    //                 children: [
-    //                   Text("User Name:${adminUserProvider.getAdminUserModel()!.name}"),
-    //                   Text("User Role:${adminUserProvider.getAdminUserModel()!.role}"),
-    //                 ],
-    //               );
-    //             },
-    //           ),
-    //           const SizedBox(height: 20,),
-    //           FlatButton(
-    //             onPressed: () {
-    //               VisitController().createDummyVisitDataInFirestore();
-    //               // PatientController().createDummyPatientDataInFirestore();
-    //             },
-    //             child: const Text("Create Visit"),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   Widget mainBody(){
@@ -128,22 +36,21 @@ class _HomeScreenState extends State<HomeScreen> {
         Icons.dashboard_outlined,
         Icons.history,
         Icons.file_copy_outlined,
-        Icons.logout_outlined
+        Icons.person_outline
       ],
       activeIcons: const [
         Icons.dashboard,
         Icons.history,
         Icons.file_copy,
-        Icons.logout
-
+        Icons.person
       ],
       screens: [
         DashBoardScreen(),
         Container(child: const  Text(AppStrings.history),),
         Container(child: const Text(AppStrings.scanner),),
-        Container(child: const Text(AppStrings.logout),),
+        ProfileScreen(),
       ],
-      titles: const [AppStrings.dashboard, AppStrings.history, AppStrings.scanner,AppStrings.logout],
+      titles: const [AppStrings.dashboard, AppStrings.history, AppStrings.scanner,AppStrings.profile],
       color: themeData.colorScheme.onBackground,
       activeColor: themeData.colorScheme.primary,
       navigationBackground: themeData.backgroundColor,

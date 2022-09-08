@@ -20,6 +20,7 @@ class AppStrings {
   static const String paymentDetail = "Payment Details";
   static const String gender = "Gender";
   static const String dob = "Date of Birth";
+  static const String profile = "Profile";
   //endregion
   static const String givenUserAlreadyExist = "User with given UserName already exist";
   static const String usernameOrPasswordIsEmpty = "UserName or password is empty";

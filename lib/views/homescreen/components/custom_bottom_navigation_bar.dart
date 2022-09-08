@@ -1,6 +1,8 @@
 
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
+import 'package:pharma/controllers/authentication_controller.dart';
 import 'package:pharma/providers/app_theme_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,8 @@ class CustomBottomNavigation extends StatefulWidget {
   final Color? splashColor, highlightColor, brandTextColor, verticalDividerColor;
   final Widget? floatingActionButton;
 
+
+
    CustomBottomNavigation(
       {Key? key,
         required this.icons,
@@ -41,7 +45,7 @@ class CustomBottomNavigation extends StatefulWidget {
         this.highlightColor,
         this.floatingActionButton,
         this.brandTextColor,
-        this.verticalDividerColor, this.bottomNavigationElevation})
+        this.verticalDividerColor, this.bottomNavigationElevation, })
       : super(key: key);
 
   @override
@@ -92,6 +96,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
 
   changeTab(int index) {
     setState(() {
+      print("indexxxx:${index}");
       _currentIndex = index;
       _tabController!.index = index;
     });
@@ -295,6 +300,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                     ),
                   ),
                   child: NavigationRail(
+
                     backgroundColor:Color(0xfffbfbff),
                     elevation: 1,
                     extended: isExtended,
@@ -332,7 +338,14 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                   Container(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
-                      child: DashboardHeader(title: titles[_currentIndex],),
+                      child: DashboardHeader(title: titles[_currentIndex],
+                        actions: IconButton(
+                          icon: Icon(Icons.logout,color: Colors.black,),
+                          onPressed: (){
+                            showLogoutDialouge();
+                          },
+                        ),
+                        isActionVisible: _currentIndex == 3? true:false,),
                     ),
                   ),
                   Expanded(
@@ -347,6 +360,21 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
       ),
     );
   }
+
+  void showLogoutDialouge(){
+    showDialog(context: context, builder: (BuildContext context){
+      return CupertinoAlertDialog(
+        title: Text("Logout"),
+        content: Text("Are you sure you want to logout ? "),
+        actions: [
+          CupertinoButton(child: Text("Cancle"), onPressed: ()=>Navigator.pop(context)),
+          CupertinoButton(child: Text("Confirm"), onPressed: ()=>AuthenticationController().logout(context: context))
+        ],
+      );
+    });
+  }
+
+
 }
 
 class _NavigationRailHeader extends StatelessWidget {

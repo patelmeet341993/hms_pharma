@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharma/controllers/authentication_controller.dart';
 import 'package:pharma/views/homescreen/components/primary_text.dart';
 
 import '../../../configs/app_strings.dart';
@@ -6,10 +7,15 @@ import '../../../configs/app_strings.dart';
 class DashboardHeader extends StatelessWidget {
    DashboardHeader({
      this.title = AppStrings.dashboard,
+     this.actions,
+     this.isActionVisible = false,
     Key? key,
   }) : super(key: key);
    late ThemeData themeData;
    String title = AppStrings.dashboard;
+   Widget? actions ;
+   bool isActionVisible;
+
 
 
   @override
@@ -35,7 +41,10 @@ class DashboardHeader extends StatelessWidget {
         const Spacer(
           flex: 1,
         ),
-        // if (Responsive.isDesktop(context))
+        Visibility(
+          visible: isActionVisible,
+          child:actions ?? Container()
+        )
       ],
     );
   }
