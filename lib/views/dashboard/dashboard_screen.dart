@@ -90,21 +90,21 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               children: [
                 Row(
                   children: [
-                    Flexible(child: commonWidgetWithHeader(AppStrings.userName,UserNameController)),
+                    Flexible(child: commonWidgetWithHeader(AppStrings.userName, "Happy")),
                     SizedBox(width: 10,),
-                    Flexible(child: commonWidgetWithHeader(AppStrings.userId,uniqueIdController)),
+                    Flexible(child: commonWidgetWithHeader(AppStrings.userId,"0123ghdy")),
                     SizedBox(width: 10,),
-                    Flexible(child: commonWidgetWithHeader(AppStrings.age,ageController))
+                    Flexible(child: commonWidgetWithHeader(AppStrings.age,"21"))
                   ],
                 ),
                 SizedBox(height: 10,),
                 Row(
                   children: [
-                    Flexible(child: dobTextFormField()),
+                    Flexible(child: commonWidgetWithHeader(AppStrings.dob,"+91 7621855610")),
                     SizedBox(width: 10,),
-                    Flexible(child: commonWidgetWithHeader(AppStrings.mobile,mobileControlller)),
+                    Flexible(child: commonWidgetWithHeader(AppStrings.mobile,"+91 7621855610")),
                     SizedBox(width: 10,),
-                    Flexible(child: genderWidget())
+                    Flexible(child: commonWidgetWithHeader(AppStrings.gender,"Male"))
                   ],
                 )
               ],
@@ -115,7 +115,8 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     );
   }
 
-  Widget commonWidgetWithHeader(String headerText,TextEditingController textEditingController) {
+
+  Widget commonWidgetWithHeaderWithTextField(String headerText,TextEditingController textEditingController) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,6 +125,20 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           controller: textEditingController,
           hintText: "Enter ${headerText}",
         )
+      ],
+    );
+  }
+  Widget commonWidgetWithHeader(String headerText,String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+            child: Text(headerText, style: TextStyle(fontSize: 14),)),
+        Container(
+            child: Text(":")),
+        SizedBox(width: 15,),
+        Text(text,style: TextStyle(fontWeight: FontWeight.w600),)
       ],
     );
   }
@@ -210,6 +225,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       ]),
     );
   }
+
   DataColumn dataTableColumn(){
     return DataColumn(label: Text("data"),);
   }
@@ -229,10 +245,6 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       headingRowHeight: 30,
       headingRowColor: MaterialStateProperty.resolveWith(
               (states) => themeData.primaryColor.withOpacity(0.3),),
-
-
-      // columnSpacing: 20,
-
       columns: [
         DataColumn(label:getColumnItem("Medicine")),
         DataColumn(label:getColumnItem("Size")),
@@ -247,25 +259,49 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         // DataColumn(label:Center(child:Text("Total amount",style: themeData.textTheme.bodyText1,))),
       ],
       rows: [
-        getDataRow(name: "paracetamol",description: "3 nos", quantity: 3, time: "Afternoon,Evening", instruction: "take only when have fever",totalAmount: 26.4),
-        getDataRow(name: "crux",description: "50 ml", quantity: 1, time: "Afternoon,Evening", instruction: "after meal", totalAmount: 30),
+        getDataRow(name: "paracetamol",description: "3 nos", quantity: 3, time: "Afternoon,Evening", instruction: "take only when have fever",totalAmount: 26.4,controller: mobileControlller,amountController: ageController),
+        getDataRow(name: "crux",description: "50 ml", quantity: 1, time: "Afternoon,Evening", instruction: "after meal", totalAmount: 30,controller: dobController,amountController: uniqueIdController),
       ],
     );
   }
 
-  DataRow getDataRow({required String name,required String description,required int quantity,required String time,required String instruction, required double totalAmount }){
+  DataRow getDataRow({required String name,required String description,required int quantity,required String time,required String instruction, required double totalAmount, required TextEditingController controller,required TextEditingController amountController }){
+    // controller.text = quantity.toString();
     return DataRow(
         cells: [
           getDataCell(name,),
           getDataCell(description,),
           getDataCell(time),
-          getDataCell(quantity.toString(),),
+          getEditableContent(controller,(String? val){
+            setState(() {});
+          }),
+          // getDataCell(getEditableContent()),
           getDataCell(instruction,),
-          getDataCell(totalAmount.toString(),),
-          getDataCell((quantity*totalAmount).toStringAsFixed(2).toString(),),
+          getEditableContent(amountController,(String? val){
+            setState(() {});
+          }),
+          // getDataCell(totalAmount.toString(),),
+          getDataCell(calculateTotalAmount(controller.text.isEmpty ? "0":controller.text,amountController.text.isEmpty?"0":amountController.text)),
           // getDataCell(name,),
         ]
     );
+  }
+
+
+  String totalAmount = "0";
+
+  String calculateTotalAmount(String quantity, String mrp){
+
+    return (int.parse(quantity)*double.parse(mrp)).toStringAsFixed(2).toString();
+  }
+
+  DataCell getEditableContent(TextEditingController controller,Function(String? val)? onChanged){
+    return DataCell(Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: AppTextFormField(controller:controller,hintText: "",textAlign: TextAlign.end,
+      onChanged: onChanged
+      ),
+    ));
   }
 
   Widget getColumnItem(String text){
@@ -281,6 +317,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         softWrap: true,),
     ),);
   }
+
 
   Widget getAmountView(){
     return Container(
@@ -305,11 +342,11 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               ],
             ),
           ),
-
         ],
       ),
     );
   }
+
   Widget amountItemView(String title, String amount){
     return Row(children: [
       Expanded(child: Text(title,style: TextStyle(fontWeight: FontWeight.w600,fontSize: 15),)),

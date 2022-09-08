@@ -18,5 +18,7 @@ class AppStrings {
   static const String age = "Age";
   static const String mobile = "Phone";
   static const String paymentDetail = "Payment Details";
+  static const String gender = "Gender";
+  static const String dob = "Date of Birth";
   //endregion
 }
