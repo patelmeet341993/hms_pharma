@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../configs/app_theme.dart';
 import '../controllers/navigation_controller.dart';
+import '../providers/admin_user_provider.dart';
 import '../providers/app_theme_provider.dart';
 import '../providers/connection_provider.dart';
 import '../utils/logger_service.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AppThemeProvider>(create: (_) => AppThemeProvider(), lazy: false),
         ChangeNotifierProvider<ConnectionProvider>(create: (_) => ConnectionProvider(), lazy: false),
         ChangeNotifierProvider<HomePageProvider>(create: (_) => HomePageProvider(), lazy: false),
+        ChangeNotifierProvider<AdminUserProvider>(create: (_) => AdminUserProvider(), lazy: false),
       ],
       child: MainApp(),
     );
@@ -43,7 +45,7 @@ class MainApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: NavigationController.mainScreenNavigator,
-          title: "HMS",
+          title: "HMS Pharma",
           theme: AppTheme.getThemeFromThemeMode(appThemeProvider.themeMode),
           onGenerateRoute: NavigationController.onMainGeneratedRoutes,
           navigatorObservers: [
