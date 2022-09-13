@@ -123,12 +123,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
   themeData = Theme.of(context);
     return Scaffold(
       backgroundColor: Color(0xfffbfbff),
-
-      body: Column(
-        children: [
-          Expanded(child: getMainBody()),
-        ],
-      ),
+      body: Center(child: getMainBody()),
     );
   }
   Widget getMainBody(){
@@ -200,7 +195,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
               children: [
                 Row(
                   children: [
-                    // Flexible(child: commonWidgetWithHeader(AppStrings.userName, visitModel!.currentDoctor)),
+                    Flexible(child: commonWidgetWithHeader(AppStrings.userName, visitModel!.currentDoctorName)),
                     SizedBox(width: 10,),
                     Flexible(child: commonWidgetWithHeader(AppStrings.userId,visitModel!.patientId)),
                     SizedBox(width: 10,),

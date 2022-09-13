@@ -1,7 +1,10 @@
 //App Version
 import 'package:flutter/material.dart';
+import 'package:pharma/configs/app_strings.dart';
 
 import '../views/common/models/home_screen_component_model.dart';
+import '../views/dashboard/dashboard_screen.dart';
+import '../views/profile.dart';
 
 const String app_version = "1.0.0";
 
@@ -64,11 +67,10 @@ class PaymentStatus {
 
 class HomeScreenComponentsList {
   final List<HomeScreenComponentModel> _masterOptions = [
-    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashboardScreen(), title: "Dashboard"),
-    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text("History"), title: "History"),
-    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: Text("Treatment"), title: "Treatment"),
-    const HomeScreenComponentModel(icon: Icons.people_alt_outlined, activeIcon: Icons.people, screen: AdminUsersListScreen(title: "Admin Users"), title: "Admin Users"),
-    const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: AdminUserProfileScreen(), title: "Profile"),
+    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardScreen(), title: AppStrings.dashboard),
+    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text(AppStrings.history), title: AppStrings.history),
+    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: Text(AppStrings.scanner), title: AppStrings.scanner),
+    const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: ProfileScreen(), title: AppStrings.profile),
   ];
 
   List<HomeScreenComponentModel> getHomeScreenComponentsRolewise(String role) {
