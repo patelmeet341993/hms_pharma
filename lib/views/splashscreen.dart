@@ -9,6 +9,7 @@ import '../utils/logger_service.dart';
 import 'authentication/login_screen.dart';
 import 'common/components/common_text.dart';
 import 'homescreen/homescreen.dart';
+import 'homescreen/homescreen3.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = "/SplashScreen";
