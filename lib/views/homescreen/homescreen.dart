@@ -1,5 +1,10 @@
 import 'package:pharma/views/homescreen/components/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:pharma/views/profile.dart';
+import 'package:provider/provider.dart';
+
+import '../../configs/app_strings.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/constants.dart';
