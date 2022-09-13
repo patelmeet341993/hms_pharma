@@ -31,5 +31,7 @@ class Styles {
   static Color lightFocusedTextFormFieldColor = Color(0xff6d65df).withOpacity(0.05);
   static Color darkFocusedTextFormFieldColor = Color(0xff6d65df).withOpacity(0.5);
 
-
+  //region CustomColors
+  static const Color cardColor = Color(0xfff0f0f0);
+  //endregion//
 }
