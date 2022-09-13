@@ -1,4 +1,8 @@
 //App Version
+import 'package:flutter/material.dart';
+
+import '../views/common/models/home_screen_component_model.dart';
+
 const String app_version = "1.0.0";
 
 //Shared Preference Keys
@@ -56,4 +60,18 @@ class PaymentModes {
 class PaymentStatus {
   static const String pending = "Pending";
   static const String paid = "Paid";
+}
+
+class HomeScreenComponentsList {
+  final List<HomeScreenComponentModel> _masterOptions = [
+    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashboardScreen(), title: "Dashboard"),
+    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text("History"), title: "History"),
+    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: Text("Treatment"), title: "Treatment"),
+    const HomeScreenComponentModel(icon: Icons.people_alt_outlined, activeIcon: Icons.people, screen: AdminUsersListScreen(title: "Admin Users"), title: "Admin Users"),
+    const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: AdminUserProfileScreen(), title: "Profile"),
+  ];
+
+  List<HomeScreenComponentModel> getHomeScreenComponentsRolewise(String role) {
+    return _masterOptions;
+  }
 }
