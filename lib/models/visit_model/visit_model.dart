@@ -136,7 +136,7 @@ class VisitModel {
       "updatedTime" : updatedTime,
       "weight" : weight,
       "active" : active,
-      "diagnosis" : diagnosis.map((e) => e.toMap()),
+      "diagnosis" : diagnosis.map((e) => e.toMap()).toList(),
       "visitBillings" : visitBillings.map((key, value) => MapEntry(key, value.toMap())),
       "pharmaBilling" : pharmaBilling?.toMap(),
     };

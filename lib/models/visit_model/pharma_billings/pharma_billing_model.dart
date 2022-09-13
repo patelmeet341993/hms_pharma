@@ -92,7 +92,7 @@ class PharmaBillingModel {
       "taxAmount" : taxAmount,
       "taxPercentage" : taxPercentage,
       "totalAmount" : totalAmount,
-      "items" : items.map((e) => e.toMap()),
+      "items" : items.map((e) => e.toMap()).toList(),
       "createdTime" : json ? createdTime?.toDate().toIso8601String() : createdTime,
     };
   }

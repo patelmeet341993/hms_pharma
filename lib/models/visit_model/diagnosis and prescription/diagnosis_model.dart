@@ -51,7 +51,7 @@ class DiagnosisModel {
       "doctorId" : doctorId,
       "doctorName" : doctorName,
       "diagnosisDescription" : diagnosisDescription,
-      "prescription" : prescription.map((e) => e.toMap()),
+      "prescription" : prescription.map((e) => e.toMap()).toList(),
     };
   }
 
