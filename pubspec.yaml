@@ -60,6 +60,9 @@ dependencies:
   loading_animation_widget: ^1.2.0+2
   flutter_spinkit: ^5.1.0
   google_fonts: ^3.0.1
+  side_navigation: ^1.0.2
+  font_awesome_flutter: ^10.1.0
+  flutter_svg: ^1.1.4
   fluttertoast: ^8.0.9
 
   ####################
@@ -75,6 +78,8 @@ dependencies:
   connectivity_plus: ^2.3.6+1
   uuid: ^3.0.6
   equatable: ^2.0.5
+
+
 
 dev_dependencies:
   flutter_test:

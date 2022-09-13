@@ -76,6 +76,6 @@ Future<void> initApp({bool isDev = false}) async {
       ),
     ]);
   }
-  Log.tag = 'hms';
+  Log.tag = '';
   Log().d('Running ${isDev ? 'dev' : 'prod'} version...');
 }
