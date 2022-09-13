@@ -28,6 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     NavigationController.isFirst = false;
     if(user != null) {
+      AdminUserController().startAdminUserSubscription();
       Navigator.pushNamedAndRemoveUntil(NavigationController.mainScreenNavigator.currentContext!, HomeScreen.routeName, (route) => false);
     }
     else {

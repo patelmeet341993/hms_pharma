@@ -14,6 +14,7 @@ import '../utils/parsing_helper.dart';
 import '../utils/shared_pref_manager.dart';
 import '../views/authentication/login_screen.dart';
 import '../views/homescreen/homescreen.dart';
+import 'admin_user/admin_user_controller.dart';
 import 'firestore_controller.dart';
 import 'navigation_controller.dart';
 
@@ -41,7 +42,8 @@ class AuthenticationController {
 
       if(documentSnapshot.exists && (documentSnapshot.data() ?? {}).isNotEmpty) {
         AdminUserModel newModel = AdminUserModel.fromMap(documentSnapshot.data()!);
-        if(adminUserModel.username == newModel.username && adminUserModel.password == newModel.password) {
+        if(adminUserModel.username == newModel.username && adminUserModel.password == newModel.password && newModel.isActive) {
+          adminUserProvider.setAdminUserId(newModel.id);
           adminUserProvider.setAdminUserModel(newModel);
           if(adminUserModel != newModel) {
             SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, jsonEncode(newModel.toMap()));
@@ -49,18 +51,21 @@ class AuthenticationController {
           return newModel;
         }
         else {
+          adminUserProvider.setAdminUserId("");
           adminUserProvider.setAdminUserModel(null);
           SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, "");
           return null;
         }
       }
       else {
+        adminUserProvider.setAdminUserId("");
         adminUserProvider.setAdminUserModel(null);
         SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, "");
         return null;
       }
     }
     else {
+      adminUserProvider.setAdminUserId("");
       adminUserProvider.setAdminUserModel(null);
       SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, "");
       return null;
@@ -90,7 +95,7 @@ class AuthenticationController {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
       if((docSnapshot.data() ?? {}).isNotEmpty) {
         AdminUserModel model = AdminUserModel.fromMap(docSnapshot.data()!);
-        isLoginSuccess = model.username == userName && model.password == password && (userTypes.isNotEmpty ? userTypes.contains(model.role) : true);
+        isLoginSuccess = model.username == userName && model.password == password && (userTypes.isNotEmpty ? userTypes.contains(model.role) : true) && model.isActive;
         if(isLoginSuccess) {
           adminUserModel = model;
         }
@@ -98,10 +103,12 @@ class AuthenticationController {
     }
     
     AdminUserProvider adminUserProvider = Provider.of<AdminUserProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
+    adminUserProvider.setAdminUserId(adminUserModel?.id ?? "");
     adminUserProvider.setAdminUserModel(adminUserModel, isNotify: false);
     SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, adminUserModel != null ? jsonEncode(adminUserModel.toMap(toJson: true)) : "");
 
     if(isLoginSuccess) {
+      AdminUserController().startAdminUserSubscription();
       Navigator.pushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
     }
 
@@ -111,8 +118,10 @@ class AuthenticationController {
   Future<bool> logout({required BuildContext context}) async {
     bool isLoggedOut = false;
 
-    AdminUserProvider adminUserProvider = Provider.of<AdminUserProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
-    adminUserProvider.setAdminUserModel(null, isNotify: false);
+    /*AdminUserProvider adminUserProvider = Provider.of<AdminUserProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
+    adminUserProvider.setAdminUserId("", isNotify: false);
+    adminUserProvider.setAdminUserModel(null, isNotify: false);*/
+    AdminUserController().stopAdminUserSubscription();
     SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, "");
     isLoggedOut = true;
 
