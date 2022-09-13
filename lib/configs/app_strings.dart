@@ -21,6 +21,9 @@ class AppStrings {
   static const String gender = "Gender";
   static const String dob = "Date of Birth";
   static const String profile = "Profile";
+  static const String cgst = "CGST";
+  static const String sgst = "SGST";
+
   //endregion
   static const String givenUserAlreadyExist = "User with given UserName already exist";
   static const String usernameOrPasswordIsEmpty = "UserName or password is empty";

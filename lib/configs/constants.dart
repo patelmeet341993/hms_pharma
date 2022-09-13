@@ -9,6 +9,8 @@ class SharePrefrenceKeys {
 
 class AppConstants {
   static const List<String> userTypesForLogin = [AdminUserType.pharmacy];
+  static const sgstValue = "12";
+  static const cgstValue = "12";
 }
 
 class PatientGender {
