@@ -26,34 +26,32 @@ class CustomBottomNavigation extends StatefulWidget {
   final Color? splashColor, highlightColor, brandTextColor, verticalDividerColor;
   final Widget? floatingActionButton;
 
-
-
-   CustomBottomNavigation(
-      {Key? key,
-        required this.icons,
-        this.activeIcons = const [],
-        required this.screens,
-        this.titles = const [],
-        this.activeColor,
-        this.color,
-        this.initialIndex,
-        this.activeIconSize,
-        this.iconSize,
-        this.backButton,
-        this.navigationBackground,
-        this.splashColor,
-        this.highlightColor,
-        this.floatingActionButton,
-        this.brandTextColor,
-        this.verticalDividerColor, this.bottomNavigationElevation, })
-      : super(key: key);
+  const CustomBottomNavigation({
+    Key? key,
+    required this.icons,
+    this.activeIcons = const [],
+    required this.screens,
+    this.titles = const [],
+    this.activeColor,
+    this.color,
+    this.initialIndex,
+    this.activeIconSize,
+    this.iconSize,
+    this.backButton,
+    this.navigationBackground,
+    this.splashColor,
+    this.highlightColor,
+    this.floatingActionButton,
+    this.brandTextColor,
+    this.verticalDividerColor,
+    this.bottomNavigationElevation,
+  }) : super(key: key);
 
   @override
   _CustomBottomNavigationState createState() => _CustomBottomNavigationState();
 }
 
-class _CustomBottomNavigationState extends State<CustomBottomNavigation>
-    with SingleTickerProviderStateMixin {
+class _CustomBottomNavigationState extends State<CustomBottomNavigation> with SingleTickerProviderStateMixin {
   //ThemeData
   late ThemeData themeData;
   // CustomAppTheme customAppTheme;
@@ -152,15 +150,13 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
       builder: (BuildContext context, AppThemeProvider value,_) {
         // customAppTheme = themeData;
         return  LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                if (ScreenMedia.isMinimumSize(ScreenMediaType.XS,
-                    currentWidth: constraints.maxWidth)) {
-                  return mobileScreen();
-                }
-                return largeScreen(
-                    ScreenMedia.getScreenMediaType(constraints.maxWidth),true);
-              },
-            );
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (ScreenMedia.isMinimumSize(ScreenMediaType.XS, currentWidth: constraints.maxWidth)) {
+              return mobileScreen();
+            }
+            return largeScreen(ScreenMedia.getScreenMediaType(constraints.maxWidth),true);
+          },
+        );
       },
     );
   }
@@ -335,7 +331,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
+                  /*Container(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: DashboardHeader(title: titles[_currentIndex],
@@ -347,10 +343,9 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                         ),
                         isActionVisible: _currentIndex == 3? true:false,),
                     ),
-                  ),
+                  ),*/
                   Expanded(
-                    child: Container(
-                        child: Center(child: screens[_currentIndex])),
+                    child: screens[_currentIndex],
                   ),
                 ],
               ),
