@@ -1,15 +1,11 @@
-
 import 'package:pharma/views/homescreen/components/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:pharma/views/profile.dart';
 import 'package:provider/provider.dart';
 
-import '../../configs/app_strings.dart';
-import '../dashboard/dashboard_screen.dart';
+import '../../configs/constants.dart';
+import '../common/models/home_screen_component_model.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/authentication_controller.dart';
-import '../../models/admin_user_model.dart';
 import '../../providers/admin_user_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,8 +17,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   late ThemeData themeData;
+
+  List<HomeScreenComponentModel> components = [];
+
+  @override
+  void initState() {
+    super.initState();
+    AdminUserProvider adminUserProvider = Provider.of<AdminUserProvider>(context, listen: false);
+    components = HomeScreenComponentsList().getHomeScreenComponentsRolewise(adminUserProvider.getAdminUserModel()?.role ?? "");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,25 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget mainBody(){
     return CustomBottomNavigation(
-      icons: const [
-        Icons.dashboard_outlined,
-        Icons.history,
-        Icons.file_copy_outlined,
-        Icons.person_outline
-      ],
-      activeIcons: const [
-        Icons.dashboard,
-        Icons.history,
-        Icons.file_copy,
-        Icons.person
-      ],
-      screens: [
-        DashBoardScreen(),
-        Container(child: const  Text(AppStrings.history),),
-        Container(child: const Text(AppStrings.scanner),),
-        ProfileScreen(),
-      ],
-      titles: const [AppStrings.dashboard, AppStrings.history, AppStrings.scanner,AppStrings.profile],
+      icons: components.map((e) => e.icon).toList(),
+      activeIcons: components.map((e) => e.activeIcon).toList(),
+      screens: components.map((e) => e.screen).toList(),
+      titles: components.map((e) => e.title).toList(),
       color: themeData.colorScheme.onBackground,
       activeColor: themeData.colorScheme.primary,
       navigationBackground: themeData.backgroundColor,
