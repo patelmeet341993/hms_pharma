@@ -19,7 +19,8 @@ import '../common/app_text_form_field.dart';
 import '../common/components/primary_text.dart';
 
 class DashBoardScreen extends StatefulWidget {
-  const DashBoardScreen({Key? key}) : super(key: key);
+  final String title;
+  const DashBoardScreen({Key? key, this.title = AppStrings.dashboard}) : super(key: key);
 
   @override
   State<DashBoardScreen> createState() => _DashBoardScreenState();
@@ -120,12 +121,17 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
 
   @override
   Widget build(BuildContext context) {
-  themeData = Theme.of(context);
+    themeData = Theme.of(context);
     return Scaffold(
-      backgroundColor: Color(0xfffbfbff),
+      appBar: AppBar(
+        title: Text(widget.title),
+        centerTitle: false,
+        elevation: 0,
+      ),
       body: Center(child: getMainBody()),
     );
   }
+
   Widget getMainBody(){
     return FutureBuilder(
       future: getFuture,

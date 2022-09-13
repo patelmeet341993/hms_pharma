@@ -18,6 +18,8 @@ class AppConstants {
   static const List<String> userTypesForLogin = [AdminUserType.pharmacy];
   static const sgstValue = "12";
   static const cgstValue = "12";
+
+  static String hospitalId = "Hospital_1";
 }
 
 class PatientGender {
@@ -67,7 +69,7 @@ class PaymentStatus {
 
 class HomeScreenComponentsList {
   final List<HomeScreenComponentModel> _masterOptions = [
-    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardScreen(), title: AppStrings.dashboard),
+    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardScreen(title: AppStrings.dashboard), title: AppStrings.dashboard),
     const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text(AppStrings.history), title: AppStrings.history),
     const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: Text(AppStrings.scanner), title: AppStrings.scanner),
     const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: ProfileScreen(), title: AppStrings.profile),
