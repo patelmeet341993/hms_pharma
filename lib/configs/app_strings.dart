@@ -14,6 +14,7 @@ class AppStrings {
   //region Dashboard strings
   static const String customerDetail = "Customer Details";
   static const String userName = "User Name";
+  static const String patientName = "Patient Name";
   static const String userId = "Unique ID";
   static const String age = "Age";
   static const String mobile = "Phone";
@@ -23,6 +24,9 @@ class AppStrings {
   static const String profile = "Profile";
   static const String cgst = "CGST";
   static const String sgst = "SGST";
+  static const String weight = "Weight";
+  static const String bloodGroup = "Blood Group";
+
 
   //endregion
   static const String givenUserAlreadyExist = "User with given UserName already exist";

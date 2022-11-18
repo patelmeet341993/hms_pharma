@@ -3,6 +3,7 @@ import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.d
 
 import '../models/dashboard_prescription_model.dart';
 import '../models/visit_model/visit_model.dart';
+import '../models/visit_model/visit_model.dart';
 import '../utils/logger_service.dart';
 
 class VisitProvider extends ChangeNotifier {
@@ -11,6 +12,9 @@ class VisitProvider extends ChangeNotifier {
   PharmaBillingModel? _pharmaBillingModel;
 
   DashboardPrescriptionModel? _dashboardPrescriptionModel;
+
+  List<VisitModel> _visitList = [];
+
 
   //getters
 
@@ -50,6 +54,8 @@ class VisitProvider extends ChangeNotifier {
     }
 
   }
+
+  List<VisitModel> get visitList => _visitList;
 
 
   //setters
@@ -115,5 +121,11 @@ class VisitProvider extends ChangeNotifier {
 
       notifyListeners();
     }
+  }
+
+  void setListVisitModel(List<VisitModel> visitModel, {bool isNotify = true}) {
+    _visitList.clear();
+    _visitList = visitModel;
+    if(isNotify) {notifyListeners();}
   }
 }

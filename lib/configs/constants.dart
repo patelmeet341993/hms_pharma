@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharma/configs/app_strings.dart';
 
+import '../views/Scanner/scanner.dart';
 import '../views/common/models/home_screen_component_model.dart';
 import '../views/dashboard/dashboard_screen.dart';
 import '../views/profile.dart';
@@ -18,6 +19,8 @@ class AppConstants {
   static const List<String> userTypesForLogin = [AdminUserType.pharmacy];
   static const sgstValue = "12";
   static const cgstValue = "12";
+
+
 }
 
 class PatientGender {
@@ -67,13 +70,15 @@ class PaymentStatus {
 
 class HomeScreenComponentsList {
   final List<HomeScreenComponentModel> _masterOptions = [
-    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardScreen(), title: AppStrings.dashboard),
+    const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardMainScreen(), title: AppStrings.dashboard),
     const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text(AppStrings.history), title: AppStrings.history),
-    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: Text(AppStrings.scanner), title: AppStrings.scanner),
+    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: ScannerScreen(), title: AppStrings.scanner),
     const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: ProfileScreen(), title: AppStrings.profile),
   ];
 
   List<HomeScreenComponentModel> getHomeScreenComponentsRolewise(String role) {
     return _masterOptions;
   }
+
+
 }

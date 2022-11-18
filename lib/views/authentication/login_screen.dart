@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                     ),
                     Spacing.height(24),
                     MyContainer.bordered(
-                      paddingAll:12,
+                      paddingAll:10,
                       // color: themeData.bgLayer2,
                       child: Row(
                         children: <Widget>[
@@ -197,12 +197,14 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                               margin: Spacing.left(16),
                               child: TextFormField(
                                 controller: usernameController,
+                                // textAlign: TextAlign.center,
                                 style: AppTheme.getTextStyle(
                                     themeData.textTheme.bodyText1!,
                                     letterSpacing: 0.1,
                                     color: themeData
                                         .colorScheme.onBackground,
                                     fontWeight: FontWeight.w500),
+                                maxLines: null,
                                 validator: (String? text) {
                                   if(text?.isNotEmpty ?? false) {
                                     return null;
@@ -216,8 +218,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                                   hintStyle: AppTheme.getTextStyle(
                                       themeData.textTheme.subtitle2!,
                                       letterSpacing: 0.1,
-                                      color: themeData
-                                          .colorScheme.onBackground,
+                                      color: themeData.colorScheme.onBackground,
                                       fontWeight: FontWeight.w500),
 
 
@@ -229,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                                       borderSide: BorderSide.none),
                                   enabledBorder: const OutlineInputBorder(
                                       borderRadius:
-                                      const BorderRadius.all(
+                                      BorderRadius.all(
                                         Radius.circular(8),
                                       ),
                                       borderSide: BorderSide.none),
@@ -240,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                                       ),
                                       borderSide: BorderSide.none),
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.all(0),
+                                  contentPadding: EdgeInsets.fromLTRB(5,10,5,10)
                                 ),
                                 textCapitalization:
                                 TextCapitalization.sentences,
@@ -277,6 +278,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                             child: Container(
                               margin: Spacing.left(16),
                               child: TextFormField(
+                                maxLines: null,
                                 controller: passwordController,
                                 style: AppTheme.getTextStyle(
                                     themeData.textTheme.bodyText1!,
@@ -303,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
 
                                   border: const OutlineInputBorder(
                                       borderRadius:
-                                      const BorderRadius.all(
+                                      BorderRadius.all(
                                         Radius.circular(8.0),
                                       ),
                                       borderSide: BorderSide.none),

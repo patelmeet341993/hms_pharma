@@ -6,12 +6,17 @@ import 'package:pharma/controllers/authentication_controller.dart';
 import 'package:pharma/providers/app_theme_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pharma/providers/home_page_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../configs/app_theme.dart';
+import '../../../controllers/navigation_controller.dart';
 import '../../../utils/SizeConfig.dart';
 import '../../common/components/ScreenMedia.dart';
+import '../../dashboard/dashboard_screen.dart';
 import 'dashboard_header.dart';
+
+
 
 
 class CustomBottomNavigation extends StatefulWidget {
@@ -25,6 +30,7 @@ class CustomBottomNavigation extends StatefulWidget {
   final Widget? backButton;
   final Color? splashColor, highlightColor, brandTextColor, verticalDividerColor;
   final Widget? floatingActionButton;
+  final HomePageProvider? homeProvider;
 
 
 
@@ -45,6 +51,7 @@ class CustomBottomNavigation extends StatefulWidget {
         this.highlightColor,
         this.floatingActionButton,
         this.brandTextColor,
+        this.homeProvider,
         this.verticalDividerColor, this.bottomNavigationElevation, })
       : super(key: key);
 
@@ -98,6 +105,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
     setState(() {
       print("indexxxx:${index}");
       _currentIndex = index;
+      widget.homeProvider?.setHomeTabIndex(index);
       _tabController!.index = index;
     });
   }
@@ -209,7 +217,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
           toolbarHeight: 80,
           // primary: true,
           elevation: 0,
-        title: DashboardHeader(title: titles[_currentIndex],),
+        title: DashboardHeader(title: titles[_currentIndex]),
         ),
       ),
       floatingActionButton: floatingActionButton,
@@ -310,7 +318,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                       extended: _isExtended!,
                       brandTextColor: brandTextColor!,
                     ),
-                    selectedIndex: _currentIndex,
+                    selectedIndex: widget.homeProvider?.homeTabIndex,
                     onDestinationSelected: (int index) {
                       setState(() {
                         changeTab(index);
@@ -339,6 +347,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: DashboardHeader(title: titles[_currentIndex],
+                        isBackVisible: widget.homeProvider?.homeTabIndex == -1 ? true: false,
                         actions: IconButton(
                           icon: Icon(Icons.logout,color: Colors.black,),
                           onPressed: (){

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
 import 'package:pharma/models/visit_model/visit_model.dart';
 import 'package:pharma/providers/visit_provider.dart';
+import 'package:pharma/utils/parsing_helper.dart';
 import 'package:provider/provider.dart';
 
 import '../configs/constants.dart';
@@ -21,6 +23,24 @@ class VisitController {
 
   VisitController._();
 
+  Future<void> getVisitList() async {
+    bool isLoading = false;
+    List<VisitModel> visitList = [];
+    VisitProvider visitProvider = Provider.of<VisitProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirestoreController().firestore.collection(FirebaseNodes.visitsCollection).get();
+      List<QueryDocumentSnapshot<Map<String,dynamic>>> documentSnapshot = ParsingHelper.parseListMethod(querySnapshot.docs);
+      documentSnapshot.forEach((element){
+        visitList.add(VisitModel.fromMap(ParsingHelper.parseMapMethod(element.data())));
+      });
+
+      if(visitList.isNotEmpty) {
+        visitProvider.setListVisitModel(visitList);
+      }
+    } catch (e,s){
+      Log().e(e,s);
+    }
+  }
 
   Future<bool> getVisitDataFromId(String id)async{
     bool isLoading = false;
@@ -71,6 +91,7 @@ class VisitController {
   }
 
   Future<VisitModel?> getVisitModel(String id)async {
+    Log().i("Visit id: $id");
     try {
       VisitModel? visitModel;
       Query<Map<String, dynamic>> query = FirestoreController().firestore
@@ -80,7 +101,7 @@ class VisitController {
       if (querySnapshot.docs.isNotEmpty) {
         DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
         if ((docSnapshot.data() ?? {}).isNotEmpty) {
-          VisitModel model = VisitModel.fromMap(docSnapshot.data()!);
+          VisitModel model = VisitModel.fromMap(ParsingHelper.parseMapMethod(docSnapshot.data()));
           visitModel = model;
         }
       }
@@ -117,4 +138,40 @@ class VisitController {
     return VisitModel();
   }
 
+
+  Future<VisitModel> getVisitModelFromPatientId(String id) async {
+    Log().i("Patent id: $id");
+    try {
+      VisitModel? visitModel;
+      Log().i("Patent id: $id");
+
+      Query<Map<String, dynamic>> query = FirestoreController().firestore
+          .collection(FirebaseNodes.visitsCollection)
+          .where("patientId", isEqualTo: id.trim())
+          .where("isPrescribed", isEqualTo: true)
+          .where("isMedicine", isEqualTo: false);
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await query.get().catchError((error){
+        Log().e("error: $error");
+      });
+      Log().i("Patent id: ${querySnapshot.docs.length}");
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
+        if ((docSnapshot.data() ?? {}).isNotEmpty) {
+          VisitModel model = VisitModel.fromMap(ParsingHelper.parseMapMethod(docSnapshot.data()));
+          visitModel = model;
+          print("Error in this ${model.id}");
+
+        }
+      }
+
+
+      return visitModel ?? VisitModel();
+    } catch (e,s){
+      Log().e(e,s);
+      print("Error in this ${e}");
+      print(s);
+      return VisitModel();
+    }
+  }
 }
