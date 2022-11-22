@@ -1,101 +1,96 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pharma/configs/constants.dart';
-import 'package:pharma/models/visit_model/patient_meta_model.dart';
-import 'package:pharma/providers/home_page_provider.dart';
-import 'package:pharma/utils/date_presentation.dart';
-import 'package:pharma/views/common/components/loading_widget.dart';
-import 'package:pharma/views/dashboard/visit_details.dart';
+import 'package:pharma/controllers/history_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/app_strings.dart';
 import '../../controllers/navigation_controller.dart';
-import '../../controllers/visit_controller.dart';
+import '../../models/visit_model/patient_meta_model.dart';
 import '../../models/visit_model/visit_model.dart';
-import '../../providers/visit_provider.dart';
-import '../../utils/my_safe_state.dart';
-import '../common/components/primary_text.dart';
+import '../../providers/history_provider.dart';
+import '../../providers/home_page_provider.dart';
+import '../../utils/date_presentation.dart';
+import '../common/components/loading_widget.dart';
+import '../dashboard/dashboard_screen.dart';
+import '../dashboard/visit_details.dart';
 
-class DashBoardMainScreen extends StatefulWidget {
-  static const String routeName = "/DashBoardMainScreen";
+class HistoryMainScreen extends StatefulWidget {
+  static const String routeName = "/HistoryMainScreen";
 
-  const DashBoardMainScreen({Key? key}) : super(key: key);
+  const HistoryMainScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashBoardMainScreen> createState() => _DashBoardMainScreenState();
+  State<HistoryMainScreen> createState() => _HistoryMainScreenState();
 }
 
-class _DashBoardMainScreenState extends State<DashBoardMainScreen> {
+class _HistoryMainScreenState extends State<HistoryMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      key: NavigationController.dashboardScreenNavigator,
-      onGenerateRoute: NavigationController.onHomeGeneratdRoutes,
-      initialRoute: DashBoardScreen.routeName,
+      key: NavigationController.historyScreenNavigator,
+      onGenerateRoute: NavigationController.onHistoryGeneratedRoutes,
+      initialRoute: HistoryScreen.routeName,
     );
   }
 }
 
+class HistoryScreen extends StatefulWidget {
+  static const String routeName = "/HistoryScreen";
 
-
-
-
-class DashBoardScreen extends StatefulWidget {
-  static const String routeName = "/DashBoardScreen";
-
-  const DashBoardScreen({Key? key}) : super(key: key);
+  const HistoryScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashBoardScreen> createState() => _DashBoardScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
+class _HistoryScreenState extends State<HistoryScreen> {
 
   Future? getVisitListData;
-  late VisitProvider visitProvider;
+  late HistoryProvider historyProvider;
 
   Future<void> getVisitList() async {
-    await VisitController().getVisitList();
+    await HistoryController().getHistoryData();
   }
 
   @override
   void initState() {
     super.initState();
     getVisitListData = getVisitList();
-    visitProvider = Provider.of<VisitProvider>(context,listen: false);
+    historyProvider = Provider.of<HistoryProvider>(context,listen: false);
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: getMainBody(),
+      body: mainBody(),
     );
   }
 
-  Widget getMainBody(){
+ Widget mainBody() {
     return FutureBuilder(
-      future: getVisitListData,
-      builder: (BuildContext context, AsyncSnapshot asyncSnapshot){
+      future:getVisitListData,
+      builder: (BuildContext context,AsyncSnapshot asyncSnapshot){
         if(asyncSnapshot.connectionState == ConnectionState.done){
           return getVisitListView();
-        } else {
-          return Center(child: LoadingWidget());
+        }
+        else {
+          return Center(child: const LoadingWidget());
         }
       },
     );
-  }
+ }
 
   Widget getVisitListView(){
-    if(visitProvider.visitList.isEmpty){
+    if(historyProvider.visitList.isEmpty){
       return Container(child: const Text("No Data"),);
     }
     return ListView.builder(
-        itemCount: visitProvider.visitList.length,
+        itemCount: historyProvider.visitList.length,
         itemBuilder: (BuildContext context,int index){
-      return visitItemView(visitProvider.visitList[index]);
-    });
+          return visitItemView(historyProvider.visitList[index]);
+        });
   }
 
   Widget visitItemView(VisitModel visitModel){
@@ -110,15 +105,14 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
     PatientMetaModel patientMetaModel = visitModel.patientMetaModel ?? PatientMetaModel();
     // VisitModel? model = provider.getVisitModel();
     return Container(
-      padding: EdgeInsets.all(5),
-      margin: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
       child: InkWell(
         borderRadius: BorderRadius.circular(5),
         onTap: (){
-          Navigator.pushNamed(context, VisitDetailsScreen.routeName, arguments: {"id":visitModel.id, "visitModel":visitModel.toMap(), "isFromHistory" : false});
+          Provider.of<HomePageProvider>(context,listen: false).setBuildContext(NavigationController.historyScreenNavigator.currentContext ?? context);
+          Navigator.pushNamed(context, VisitDetailsScreen.routeName, arguments: {"id":visitModel.id, "visitModel":visitModel.toMap(), "isFromHistory":true});
           Provider.of<HomePageProvider>(context,listen: false).setHomeTabIndex(-1);
-          Provider.of<HomePageProvider>(context,listen: false).setBuildContext(NavigationController.dashboardScreenNavigator.currentContext ?? context);
-
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +120,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
             // PrimaryText(text: AppStrings.customerDetail,size: 16),
             // SizedBox(height: 20,),
             Container(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(width: 0.5,color: Colors.black54)
@@ -136,19 +130,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
                   Row(
                     children: [
                       Flexible(child: commonWidgetWithHeader(AppStrings.patientName, patientMetaModel.name)),
-                      SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
                       Flexible(child: commonWidgetWithHeader(AppStrings.userId,visitModel.id)),
-                      SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
                       Flexible(child: commonWidgetWithHeader(AppStrings.dob, DatePresentation.ddMMMMyyyyTimeStamp(patientMetaModel.dateOfBirth ?? Timestamp.now())))
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                   Row(
                     children: [
                       Flexible(child: commonWidgetWithHeader(AppStrings.bloodGroup, patientMetaModel.bloodGroup )),
-                      SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
                       Flexible(child: commonWidgetWithHeader(AppStrings.mobile,patientMetaModel.userMobile)),
-                      SizedBox(width: 10,),
+                      const SizedBox(width: 10,),
                       Flexible(child: commonWidgetWithHeader(AppStrings.gender,patientMetaModel.gender))
                     ],
                   )
@@ -167,13 +161,12 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-            child: Text(headerText, style: TextStyle(fontSize: 14),)),
+            child: Text(headerText, style: const TextStyle(fontSize: 14),)),
         Container(
-            child: Text(":")),
-        SizedBox(width: 15,),
-        Text(text,style: TextStyle(fontWeight: FontWeight.w600),)
+            child: const Text(":")),
+        const SizedBox(width: 15,),
+        Text(text,style: const TextStyle(fontWeight: FontWeight.w600),)
       ],
     );
   }
-
 }

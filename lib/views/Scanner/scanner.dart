@@ -63,7 +63,6 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
      }
   }
 
-
   Future<void> getVisitData(String id)async{
     await VisitController().getVisitModelFromPatientId(id).then((VisitModel value) {
         showVisitDetailDialog(value);

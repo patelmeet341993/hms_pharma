@@ -138,7 +138,6 @@ class VisitController {
     return VisitModel();
   }
 
-
   Future<VisitModel> getVisitModelFromPatientId(String id) async {
     Log().i("Patent id: $id");
     try {
@@ -174,4 +173,24 @@ class VisitController {
       return VisitModel();
     }
   }
+
+  Future<bool> updateVisitModelFirebase(VisitModel visitModel)async {
+    bool isSuccess = false;
+    try {
+      Log().i("Patent id: ${visitModel.id}");
+       await FirestoreController().firestore.collection(FirebaseNodes.visitsCollection).doc(visitModel.id).update(visitModel.toMap()).then((value) {
+             isSuccess = true;
+           })
+           .catchError((error){
+        Log().e("error: $error");
+      });
+      return isSuccess;
+    } catch (e,s){
+      Log().e(e,s);
+      print("Error in this ${e}");
+      print(s);
+      return isSuccess;
+    }
+  }
+
 }

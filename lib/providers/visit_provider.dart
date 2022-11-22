@@ -128,4 +128,5 @@ class VisitProvider extends ChangeNotifier {
     _visitList = visitModel;
     if(isNotify) {notifyListeners();}
   }
+
 }

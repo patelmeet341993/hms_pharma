@@ -5,6 +5,7 @@ import 'package:pharma/configs/app_strings.dart';
 import '../views/Scanner/scanner.dart';
 import '../views/common/models/home_screen_component_model.dart';
 import '../views/dashboard/dashboard_screen.dart';
+import '../views/history/history_screen.dart';
 import '../views/profile.dart';
 
 const String app_version = "1.0.0";
@@ -71,7 +72,7 @@ class PaymentStatus {
 class HomeScreenComponentsList {
   final List<HomeScreenComponentModel> _masterOptions = [
     const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardMainScreen(), title: AppStrings.dashboard),
-    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: Text(AppStrings.history), title: AppStrings.history),
+    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: HistoryMainScreen(), title: AppStrings.history),
     const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: ScannerScreen(), title: AppStrings.scanner),
     const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: ProfileScreen(), title: AppStrings.profile),
   ];

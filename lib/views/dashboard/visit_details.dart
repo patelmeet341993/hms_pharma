@@ -7,6 +7,7 @@ import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_mo
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
 import 'package:pharma/utils/date_presentation.dart';
 import 'package:pharma/utils/parsing_helper.dart';
+import 'package:pharma/views/common/components/custom_button.dart';
 import 'package:pharma/views/common/components/loading_widget.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,8 +26,9 @@ class VisitDetailsScreen extends StatefulWidget {
 
   String id = "";
   VisitModel? visitModel;
+  bool isFromHistory;
 
-  VisitDetailsScreen({Key? key, this.id = "", this.visitModel}) : super(key: key);
+  VisitDetailsScreen({Key? key, this.id = "", this.visitModel, this.isFromHistory = false}) : super(key: key);
 
   @override
   State<VisitDetailsScreen> createState() => _VisitDetailsScreenState();
@@ -36,10 +38,10 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
 
   late ThemeData themeData;
   TextEditingController uniqueIdController = TextEditingController();
-  TextEditingController UserNameController = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController ageController = TextEditingController();
-  TextEditingController mobileControlller = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
 
   List<TextEditingController> amountTextEditingControllers = [];
 
@@ -49,17 +51,15 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
 
   Future? getFuture;
   VisitModel? visitModel;
+  String id = "";
   List<DashboardPrescriptionModel> dashBoardPrescriptionModels = [];
   double finalAmount = 0.0, discount = 0.0, withoutGst = 0.0,totalCGSTandSgst = 0.0;
   String paymentId = const Uuid().v4();
   String totalAmount = "0";
 
-  String id = "";
 
-
-
-
-  void getTotalAmount(){
+  void getTotalAmount() {
+    discount = 0.0;
     finalAmount = 0;
     finalAmount = dashBoardPrescriptionModels.fold(0, ( previousValue, DashboardPrescriptionModel? element) {
       Log().i(element?.amountController?.text);
@@ -74,13 +74,17 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
 
     double discountAmount = ParsingHelper.parseDoubleMethod((totalCGSTandSgst/100) * finalAmount);
     Log().i("discountAmount : $discountAmount");
+    discount = discountAmount;
     finalAmount = (finalAmount + discountAmount.roundToDouble());
-
     setState(() {});
   }
 
+  double individualDiscount(finalAmount){
+    double discountAmount = ParsingHelper.parseDoubleMethod((totalCGSTandSgst/100) * finalAmount);
+    return discountAmount;
+  }
 
-  void selectDateOfBirth()async {
+  void selectDateOfBirth() async {
     DateTime? pickedDate = await showDatePicker(context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(2000),
@@ -93,25 +97,65 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     setState(() {});
   }
 
+  double calculateTotalAmount(String quantity, String mrp) {
+    return ParsingHelper.parseDoubleMethod((int.parse(quantity)*double.parse(mrp)).toStringAsFixed(2));
+  }
+
+  Future<void> onSendButtonClick() async {
+    PharmaBillingModel pharamBillingModel = PharmaBillingModel();
+    pharamBillingModel.totalAmount = finalAmount;
+    pharamBillingModel.discount = discount;
+    pharamBillingModel.patientId = visitModel?.patientId ?? "";
+    pharamBillingModel.paymentId = "cash_$paymentId";
+    pharamBillingModel.paymentMode = "CASH";
+    pharamBillingModel.paymentStatus = "Paid";
+    pharamBillingModel.totalAmount = finalAmount;
+    pharamBillingModel.baseAmount = withoutGst;
+    pharamBillingModel.items = dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel).toList();
+
+    visitModel?.pharmaBilling = pharamBillingModel;
+
+    await VisitController().updateVisitModelFirebase(visitModel ?? VisitModel());
+    Log().i("PharmaBillingModel data : ${pharamBillingModel.toMap()}");
+  }
+
   Future<void> getData() async {
     isLoading = true;
     mySetState();
     if (visitModel != null) {
-      visitModel?.diagnosis.forEach((visitModelElement) {
-        visitModelElement.prescription.forEach((element) {
+      if(!widget.isFromHistory) {
+        visitModel?.diagnosis.forEach((visitModelElement) {
+          visitModelElement.prescription.forEach((element) {
+            dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
+                pharmaBillingItemModel: PharmaBillingItemModel(
+                  dose: element.totalDose,
+                  medicineName: element.medicineName,
+                ),
+                amountController: TextEditingController(),
+                mrpController: TextEditingController()
+            ),
+            );
+          });
+        });
+      } else {
+        visitModel?.pharmaBilling?.items.forEach((element) {
           dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
               pharmaBillingItemModel: PharmaBillingItemModel(
-                dose: element.totalDose,
+                dose: element.dose,
                 medicineName: element.medicineName,
+                discount: element.discount,
+                finalAmount: element.finalAmount,
+                price: element.price,
               ),
-              amountController: TextEditingController(),
-              mrpController: TextEditingController()
-          ),
-          );
+              amountController: TextEditingController(text: element.price.toString() ),
+              mrpController: TextEditingController(text:   element.unitCount.toString())
+          ));
         });
-      });
+        withoutGst = visitModel?.pharmaBilling?.baseAmount ?? 0.0;
+        finalAmount = visitModel?.pharmaBilling?.totalAmount ?? 0.0;
+      }
     }
-    if(visitModel == null) {
+    else {
       visitModel = await VisitController().getVisitModel(widget.id);
       if (visitModel != null) {
         visitModel?.diagnosis.forEach((visitModelElement) {
@@ -123,16 +167,16 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 ),
                 amountController: TextEditingController(),
                 mrpController: TextEditingController()
-             ),
+            ),
             );
           });
         });
       }
     }
-
     isLoading = false;
     mySetState();
   }
+
 
   @override
   void initState() {
@@ -148,7 +192,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Scaffold(
-      backgroundColor: Color(0xfffbfbff),
+      backgroundColor: const Color(0xfffbfbff),
       body: Center(child: getMainBody()),
     );
   }
@@ -161,7 +205,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
             return Row(
               children: [
                 Expanded(
-                  flex: 4,
+                  flex: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -171,7 +215,9 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                     ],
                   ),
                 ),
-                Expanded(child: getAmountView()),
+                Expanded(
+                    flex: 2,
+                    child: getAmountView()),
                 // Expanded(child:
                 // MaterialButton(
                 //   child: Text("hi"),
@@ -198,7 +244,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
             );
           }
           else {
-            return LoadingWidget();
+            return const LoadingWidget();
           }
         }
     );
@@ -208,15 +254,15 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     // VisitModel? model = provider.getVisitModel();
     PatientMetaModel patientMetaModel = visitModel?.patientMetaModel ?? PatientMetaModel();
     return Container(
-      padding: EdgeInsets.all(5),
-      margin: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PrimaryText(text: AppStrings.customerDetail,size: 16),
-          SizedBox(height: 20,),
+          const PrimaryText(text: AppStrings.customerDetail,size: 18,fontWeight: FontWeight.w600),
+          const SizedBox(height: 20,),
           Container(
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(width: 0.5,color: Colors.black54)
@@ -226,19 +272,19 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 Row(
                   children: [
                     Flexible(child: commonWidgetWithHeader(AppStrings.patientName, patientMetaModel.name)),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     Flexible(child: commonWidgetWithHeader(AppStrings.userId,visitModel?.patientId ?? "")),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     Flexible(child: commonWidgetWithHeader(AppStrings.dob,DatePresentation.ddMMMMyyyyTimeStamp((patientMetaModel.dateOfBirth ?? Timestamp.now()))))
                   ],
                 ),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Row(
                   children: [
                     Flexible(child: commonWidgetWithHeader(AppStrings.weight,"${visitModel?.weight??""}")),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     Flexible(child: commonWidgetWithHeader(AppStrings.mobile,patientMetaModel.userMobile)),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     Flexible(child: commonWidgetWithHeader(AppStrings.gender, patientMetaModel.gender)),
                   ],
                 )
@@ -254,7 +300,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(headerText, style: TextStyle(fontSize: 14.5),),
+        Text(headerText, style: const TextStyle(fontSize: 14.5),),
         AppTextFormField(
           controller: textEditingController,
           hintText: "Enter ${headerText}",
@@ -269,11 +315,11 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-            child: Text(headerText, style: TextStyle(fontSize: 14),)),
+            child: Text(headerText, style: const TextStyle(fontSize: 14),)),
         Container(
-            child: Text(":")),
-        SizedBox(width: 15,),
-        Flexible(child: Text(text,style: TextStyle(fontWeight: FontWeight.w600),))
+            child: const Text(":")),
+        const SizedBox(width: 15,),
+        Flexible(child: Text(text,style: const TextStyle(fontWeight: FontWeight.w600),))
       ],
     );
   }
@@ -282,7 +328,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Date of birth",style: TextStyle(fontSize: 14.5),),
+        const Text("Date of birth",style: TextStyle(fontSize: 14.5),),
         TextFormField(
           controller: dobController,
           onTap: (){
@@ -310,7 +356,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                   borderRadius: BorderRadius.circular(5),
                   borderSide: BorderSide(color: Styles.lightFocusedTextFormFieldColor.withOpacity(0.5),width: 0.5)
               ),
-              contentPadding: EdgeInsets.fromLTRB(10, 2, 5, 2)
+              contentPadding: const EdgeInsets.fromLTRB(10, 2, 5, 2)
           ),
         ),
       ],
@@ -321,7 +367,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Gender", style: TextStyle(fontSize: 14.5),),
+        const Text("Gender", style: TextStyle(fontSize: 14.5),),
         Row(
           children: [
             radioWidget("Male","Male"),
@@ -370,7 +416,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
         ],
         rows: List.generate(dashBoardPrescriptionModels.length, (index) {
           amountTextEditingControllers.add(TextEditingController());
-          return getDataRow(pharmaBillingItemModel: dashBoardPrescriptionModels[index].pharmaBillingItemModel,mrpController: dashBoardPrescriptionModels[index].mrpController ?? TextEditingController(),amountController: dashBoardPrescriptionModels[index].amountController ?? TextEditingController());
+          return getDataRow(pharmaBillingItemModel: dashBoardPrescriptionModels[index].pharmaBillingItemModel,quantityController: dashBoardPrescriptionModels[index].mrpController ?? TextEditingController(),amountController: dashBoardPrescriptionModels[index].amountController ?? TextEditingController());
         })
 
 
@@ -381,22 +427,25 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     );
   }
 
-  DataRow getDataRow({ required PharmaBillingItemModel pharmaBillingItemModel, required TextEditingController mrpController,required TextEditingController amountController }){
+  DataRow getDataRow({ required PharmaBillingItemModel pharmaBillingItemModel, required TextEditingController quantityController,required TextEditingController amountController }){
     // controller.text = quantity.toString();
     return DataRow(
         cells: [
           getDataCell(pharmaBillingItemModel.medicineName,),
           getDataCell(pharmaBillingItemModel.dose,),
           // getDataCell(pharmaBillingItemModel.dosePerUnit),
-          getEditableContent(mrpController,(String? val){
-            pharmaBillingItemModel.finalAmount = calculateTotalAmount(mrpController.text.isEmpty ? "0":mrpController.text,amountController.text.isEmpty?"0":amountController.text);
+          getEditableContent(quantityController,(String? val){
+            // pharmaBillingItemModel.price = calculateTotalAmount(quantityController.text.isEmpty ? "0":quantityController.text,amountController.text.isEmpty?"0":amountController.text);
+            pharmaBillingItemModel.unitCount = ParsingHelper.parseDoubleMethod(val);
             setState(() {});
             getTotalAmount();
           }),
           // getDataCell(getEditableContent()),
           getDataCell(pharmaBillingItemModel.dosePerUnit,),
           getEditableContent(amountController,(String? val){
-            pharmaBillingItemModel.finalAmount = calculateTotalAmount(mrpController.text.isEmpty ? "0":mrpController.text,amountController.text.isEmpty?"0":amountController.text);
+            pharmaBillingItemModel.finalAmount = calculateTotalAmount(quantityController.text.isEmpty ? "0":quantityController.text,amountController.text.isEmpty?"0":amountController.text);
+            pharmaBillingItemModel.price = ParsingHelper.parseDoubleMethod(amountController.text.trim());
+            pharmaBillingItemModel.discount = individualDiscount(pharmaBillingItemModel.finalAmount);
             setState(() {});
             getTotalAmount();
           }),
@@ -405,14 +454,15 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     );
   }
 
-  double calculateTotalAmount(String quantity, String mrp){
-    return ParsingHelper.parseDoubleMethod((int.parse(quantity)*double.parse(mrp)).toStringAsFixed(2));
-  }
-
   DataCell getEditableContent(TextEditingController controller,Function(String? val)? onChanged){
     return DataCell(Padding(
       padding: const EdgeInsets.all(8.0),
-      child: AppTextFormField(controller:controller,hintText: "",textAlign: TextAlign.end,
+      child: AppTextFormField(
+          enabled: !widget.isFromHistory,
+
+          controller:controller,
+          hintText: "",
+          textAlign: TextAlign.end,
           onChanged: onChanged
       ),
     ));
@@ -434,14 +484,14 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
 
   Widget getAmountView(){
     return Container(
-      padding: EdgeInsets.all(5),
-      margin: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.fromLTRB(10,5,5,5),
       child: Column(
         children: [
-          PrimaryText(text: AppStrings.paymentDetail,size: 16),
-          SizedBox(height: 20,),
+          const PrimaryText(text: AppStrings.paymentDetail,size: 18,fontWeight: FontWeight.w600),
+          const SizedBox(height: 20,),
           Container(
-            padding: EdgeInsets.all(5),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(width: 0.5,color: Colors.black54)
@@ -451,15 +501,28 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 amountItemView("CGST", "${AppConstants.cgstValue}%"),
                 amountItemView("SGST", "${AppConstants.sgstValue}%"),
 
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 amountItemView("Amount", "₹ $withoutGst"),
 
-                amountItemView("Gst:", "${totalCGSTandSgst}%"),
-                SizedBox(height: 10,),
+                amountItemView("Gst", "${totalCGSTandSgst}%"),
+                const SizedBox(height: 10,),
                 amountItemView("Total Amount", "₹ $finalAmount"),
               ],
             ),
           ),
+          const SizedBox(height: 10,),
+          Visibility(
+            visible: !widget.isFromHistory,
+            child: CustomButton(text: "Send Payment Link",
+              onTap: finalAmount == 0 ? null : () async {
+                await onSendButtonClick();
+              },
+              circularRadius: 5,
+              horizontalPadding: 10,
+              verticalPadding: 10,
+              minWidth: MediaQuery.of(context).size.width *.9 ,
+            ),
+          )
         ],
       ),
     );
@@ -467,8 +530,8 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
 
   Widget amountItemView(String title, String amount){
     return Row(children: [
-      Expanded(child: Text(title,style: TextStyle(fontWeight: FontWeight.w600,fontSize: 15),)),
-      Text(amount,style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14),)
+      Expanded(child: Text(title,style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 17),)),
+      Text(amount,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
     ],);
   }
 }

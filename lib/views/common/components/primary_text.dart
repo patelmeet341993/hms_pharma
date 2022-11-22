@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PrimaryText extends StatelessWidget {
-  final double size;
+  final double size,letterSpacing;
   final FontWeight fontWeight;
   final Color color;
   final String text;
@@ -14,6 +14,8 @@ class PrimaryText extends StatelessWidget {
     this.color = Colors.black,
     this.size = 20,
     this.height = 1.3,
+    this.letterSpacing = 0.3
+
   }) : super(key: key);
 
   @override
@@ -26,6 +28,7 @@ class PrimaryText extends StatelessWidget {
         fontFamily: 'Poppins',
         fontSize: size,
         fontWeight: fontWeight,
+        letterSpacing:letterSpacing
       ),
     );
   }

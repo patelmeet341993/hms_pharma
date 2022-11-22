@@ -1,5 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:pharma/providers/history_provider.dart';
+import 'package:pharma/providers/history_provider.dart';
 import 'package:pharma/providers/home_page_provider.dart';
 import 'package:pharma/providers/visit_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<HomePageProvider>(create: (_) => HomePageProvider(), lazy: false),
         ChangeNotifierProvider<AdminUserProvider>(create: (_) => AdminUserProvider(), lazy: false),
         ChangeNotifierProvider<VisitProvider>(create: (_) => VisitProvider(), lazy: false),
+        ChangeNotifierProvider<HistoryProvider>(create: (_) => HistoryProvider(),lazy: false,),
       ],
       child: MainApp(),
     );

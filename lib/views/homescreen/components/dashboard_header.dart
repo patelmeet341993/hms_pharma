@@ -43,8 +43,7 @@ class DashboardHeader extends StatelessWidget {
                     padding: const EdgeInsets.only(right:10.0),
                     child: InkWell(
                       onTap: (){
-                        // Log().i("is popable ? ${NavigationController.dashboardScreenNavigator.currentState!.canPop()}");
-                        Navigator.pop(NavigationController.dashboardScreenNavigator.currentContext!);
+                        Navigator.pop(provider.context ?? context);
                         provider.setHomeTabIndex(0);
                       },
                       child: Icon(Icons.arrow_back_ios_new_outlined,size: 24) ,
