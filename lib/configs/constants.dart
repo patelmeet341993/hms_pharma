@@ -1,5 +1,6 @@
 //App Version
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pharma/configs/app_strings.dart';
 
 import '../views/Scanner/scanner.dart';
@@ -72,14 +73,13 @@ class PaymentStatus {
 class HomeScreenComponentsList {
   final List<HomeScreenComponentModel> _masterOptions = [
     const HomeScreenComponentModel(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, screen: DashBoardMainScreen(), title: AppStrings.dashboard),
-    const HomeScreenComponentModel(icon: Icons.history, activeIcon: Icons.history, screen: HistoryMainScreen(), title: AppStrings.history),
-    const HomeScreenComponentModel(icon: Icons.file_copy_outlined, activeIcon: Icons.file_copy, screen: ScannerScreen(), title: AppStrings.scanner),
-    const HomeScreenComponentModel(icon: Icons.person_outline, activeIcon: Icons.person, screen: ProfileScreen(), title: AppStrings.profile),
+    const HomeScreenComponentModel(icon: FontAwesomeIcons.clockRotateLeft, activeIcon: FontAwesomeIcons.clockRotateLeft, screen: HistoryMainScreen(), title: AppStrings.history),
+    const HomeScreenComponentModel(icon: FontAwesomeIcons.qrcode, activeIcon: FontAwesomeIcons.qrcode, screen: ScannerScreen(), title: AppStrings.scanner),
+    const HomeScreenComponentModel(icon: FontAwesomeIcons.gear, activeIcon: FontAwesomeIcons.gear, screen: SettingScreen(), title: AppStrings.profile),
+     HomeScreenComponentModel(icon: FontAwesomeIcons.powerOff, activeIcon: FontAwesomeIcons.powerOff, screen: Container(), title: AppStrings.logout),
   ];
 
   List<HomeScreenComponentModel> getHomeScreenComponentsRolewise(String role) {
     return _masterOptions;
   }
-
-
 }
