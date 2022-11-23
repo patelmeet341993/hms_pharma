@@ -48,7 +48,7 @@ class PatientMetaModel extends Equatable {
       "gender" : gender,
       "dateOfBirth" : dateOfBirth,
       "totalVisits" : totalVisits,
-      "userMobiles" : userMobile,
+      "userMobile" : userMobile,
     };
   }
 

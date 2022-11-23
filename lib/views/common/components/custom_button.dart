@@ -25,6 +25,7 @@ class CustomButton extends StatelessWidget {
       onPressed: onTap,
       disabledColor: backgroundColor.withOpacity(0.6),
       minWidth: minWidth,
+      highlightColor: Colors.white24,
       color: backgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(circularRadius)),
       child: child ?? Text(text, style: TextStyle(fontSize: fontSize,fontWeight: fontWeight,color: fontColor),),
