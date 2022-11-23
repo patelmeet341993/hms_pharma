@@ -18,6 +18,7 @@ import '../../../controllers/navigation_controller.dart';
 import '../../../controllers/visit_controller.dart';
 import '../../../models/visit_model/visit_model.dart';
 import '../../../utils/SizeConfig.dart';
+import '../../../utils/logger_service.dart';
 import '../../common/components/ScreenMedia.dart';
 import '../../dashboard/dashboard_screen.dart';
 import '../../dashboard/visit_details.dart';
@@ -433,9 +434,14 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                     ),
                     selectedIndex: widget.homeProvider?.homeTabIndex,
                     onDestinationSelected: (int index) {
-                      setState(() {
-                        changeTab(index);
-                      });
+                      Log().i("indexxxxxx: $index screen length: ${screens.length}");
+                      if(index == screens.length - 1){
+                        showLogoutDialouge();
+                      } else {
+                        setState(() {
+                          changeTab(index);
+                        });
+                      }
                     },
                     minExtendedWidth: 200,
                     labelType: NavigationRailLabelType.none,
