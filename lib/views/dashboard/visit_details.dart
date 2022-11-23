@@ -5,6 +5,7 @@ import 'package:pharma/controllers/visit_controller.dart';
 import 'package:pharma/models/visit_model/patient_meta_model.dart';
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
+import 'package:pharma/models/visit_model/treatment_activity_model.dart';
 import 'package:pharma/utils/date_presentation.dart';
 import 'package:pharma/utils/parsing_helper.dart';
 import 'package:pharma/views/common/components/custom_button.dart';
@@ -44,6 +45,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   TextEditingController mobileController = TextEditingController();
 
   List<TextEditingController> amountTextEditingControllers = [];
+  late PharmaBillingModel pharmaBillingModel;
 
   bool isEnable = true;
   String selectedRadio = "Male";
@@ -56,7 +58,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   double finalAmount = 0.0, discount = 0.0, withoutGst = 0.0,totalCGSTandSgst = 0.0;
   String paymentId = const Uuid().v4();
   String totalAmount = "0";
-
+  bool isSendPaymentLinkClicked = false;
 
   void getTotalAmount() {
     discount = 0.0;
@@ -102,26 +104,58 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   }
 
   Future<void> onSendButtonClick() async {
-    PharmaBillingModel pharamBillingModel = PharmaBillingModel();
-    pharamBillingModel.totalAmount = finalAmount;
-    pharamBillingModel.discount = discount;
-    pharamBillingModel.patientId = visitModel?.patientId ?? "";
-    pharamBillingModel.paymentId = "cash_$paymentId";
-    pharamBillingModel.paymentMode = "CASH";
-    pharamBillingModel.paymentStatus = "Paid";
-    pharamBillingModel.totalAmount = finalAmount;
-    pharamBillingModel.baseAmount = withoutGst;
-    pharamBillingModel.items = dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel).toList();
 
-    visitModel?.pharmaBilling = pharamBillingModel;
+    if(visitModel != null) {
+      isLoading = true;
+      setState(() {});
+      pharmaBillingModel.totalAmount = finalAmount;
+      pharmaBillingModel.discount = discount;
+      pharmaBillingModel.patientId = visitModel?.patientId ?? "";
+      // pharamBillingModel?.paymentId = "cash_$paymentId";
+      // pharamBillingModel?.paymentMode = "CASH";
+      // pharamBillingModel?.paymentStatus = "Paid";
+      pharmaBillingModel.totalAmount = finalAmount;
+      pharmaBillingModel.baseAmount = withoutGst;
+      pharmaBillingModel.createdTime = Timestamp.now();
+      pharmaBillingModel.items =
+          dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel)
+              .toList();
 
-    await VisitController().updateVisitModelFirebase(visitModel ?? VisitModel());
-    Log().i("PharmaBillingModel data : ${pharamBillingModel.toMap()}");
+      visitModel?.pharmaBilling = pharmaBillingModel;
+      visitModel?.treatmentActivity = [TreatmentActivityModel(createdTime: Timestamp.now(),activityMessage: TreatmentActivityStreamEnum.billPay)];
+
+      await VisitController().updateVisitModelFirebase(
+          visitModel ?? VisitModel()).then((value) {
+        isSendPaymentLinkClicked = true;
+      });
+      isLoading = false;
+      setState(() {});
+      Log().i("PharmaBillingModel data : ${pharmaBillingModel.toMap()}");
+    }
+  }
+
+  Future<void> onOnlineOrCashButtonClick(String paymentMode) async {
+    if(visitModel != null){
+      isLoading = true;
+      setState(() {});
+      pharmaBillingModel.paymentId = "${paymentMode.toLowerCase()}_$paymentId";
+      pharmaBillingModel.paymentMode = paymentMode.toUpperCase();
+      pharmaBillingModel.paymentStatus = "Paid";
+
+      visitModel?.treatmentActivity.add(TreatmentActivityModel(createdTime: Timestamp.now(),activityMessage: TreatmentActivityStreamEnum.completed));
+      visitModel?.weight = 85;
+
+      await VisitController().updateVisitModelFirebase(
+          visitModel ?? VisitModel()).then((value) {
+        // isSendPaymentLinkClicked = false;
+        setState(() {});
+      });
+      isLoading = false;
+      setState(() {});
+    }
   }
 
   Future<void> getData() async {
-    isLoading = true;
-    mySetState();
     if (visitModel != null) {
       if(!widget.isFromHistory) {
         visitModel?.diagnosis.forEach((visitModelElement) {
@@ -138,6 +172,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
           });
         });
       } else {
+        pharmaBillingModel = visitModel?.pharmaBilling ?? PharmaBillingModel();
         visitModel?.pharmaBilling?.items.forEach((element) {
           dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
               pharmaBillingItemModel: PharmaBillingItemModel(
@@ -173,14 +208,13 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
         });
       }
     }
-    isLoading = false;
-    mySetState();
   }
 
 
   @override
   void initState() {
     super.initState();
+    pharmaBillingModel = PharmaBillingModel();
     visitModel = widget.visitModel;
     getFuture = getData();
 
@@ -514,7 +548,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
           Visibility(
             visible: !widget.isFromHistory,
             child: CustomButton(text: "Send Payment Link",
-              onTap: finalAmount == 0 ? null : () async {
+              onTap: finalAmount == 0  || isSendPaymentLinkClicked ?  null : () async {
                 await onSendButtonClick();
               },
               circularRadius: 5,
@@ -522,7 +556,13 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
               verticalPadding: 10,
               minWidth: MediaQuery.of(context).size.width *.9 ,
             ),
-          )
+          ),
+          const SizedBox(height: 10,),
+          paymentsButton(visitModel ?? VisitModel()),
+          const SizedBox(height: 10,),
+          Visibility(
+              visible: pharmaBillingModel.paymentStatus == "Paid",
+              child: Text("Payment status: ${pharmaBillingModel.paymentStatus}"))
         ],
       ),
     );
@@ -533,5 +573,37 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       Expanded(child: Text(title,style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 17),)),
       Text(amount,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
     ],);
+  }
+
+
+  Widget paymentsButton(VisitModel visitModel){
+    return Visibility(
+      visible: isSendPaymentLinkClicked,
+      child: Row(
+        children: [
+            Expanded(
+              child: CustomButton(
+              onTap: pharmaBillingModel.paymentStatus == "Paid" ? null :  () async {
+                onOnlineOrCashButtonClick("Online");
+              },
+              text: AppStrings.onlinePayment,
+              circularRadius: 5,
+              backgroundColor: Styles.lightPrimaryColor,
+            ),
+          ),
+          SizedBox(width:10),
+          Expanded(
+              child: CustomButton(
+              onTap:pharmaBillingModel.paymentStatus == "Paid" ? null :  () async {
+                onOnlineOrCashButtonClick("Cash");
+              },
+              text: AppStrings.cash,
+              circularRadius: 5,
+              backgroundColor: Styles.lightPrimaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
