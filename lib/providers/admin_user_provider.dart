@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import '../models/admin_user_model.dart';
+import 'package:hms_models/models/admin_user/admin_user_model.dart';
 
 class AdminUserProvider extends ChangeNotifier {
   AdminUserModel? _adminUserModel;

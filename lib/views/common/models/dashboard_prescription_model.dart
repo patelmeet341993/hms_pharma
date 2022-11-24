@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
+import 'package:hms_models/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
 
 
 class DashboardPrescriptionModel {
-
    PharmaBillingItemModel pharmaBillingItemModel = PharmaBillingItemModel();
    TextEditingController? amountController;
    TextEditingController? mrpController;

@@ -1,17 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hms_models/models/visit_model/patient_meta_model.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/date_presentation.dart';
 import 'package:pharma/controllers/history_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/app_strings.dart';
 import '../../controllers/navigation_controller.dart';
-import '../../models/visit_model/patient_meta_model.dart';
-import '../../models/visit_model/visit_model.dart';
 import '../../providers/history_provider.dart';
 import '../../providers/home_page_provider.dart';
-import '../../utils/date_presentation.dart';
 import '../common/components/loading_widget.dart';
-import '../dashboard/dashboard_screen.dart';
 import '../dashboard/visit_details.dart';
 
 class HistoryMainScreen extends StatefulWidget {
@@ -76,7 +75,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           return getVisitListView();
         }
         else {
-          return Center(child: const LoadingWidget());
+          return const Center(child: LoadingWidget());
         }
       },
     );
@@ -84,7 +83,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget getVisitListView(){
     if(historyProvider.visitList.isEmpty){
-      return Container(child: const Text("No Data"),);
+      return const Text("No Data");
     }
     return ListView.builder(
         itemCount: historyProvider.visitList.length,
@@ -160,10 +159,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Container(
-            child: Text(headerText, style: const TextStyle(fontSize: 14),)),
-        Container(
-            child: const Text(":")),
+        Text(headerText, style: const TextStyle(fontSize: 14),),
+        const Text(":"),
         const SizedBox(width: 15,),
         Text(text,style: const TextStyle(fontWeight: FontWeight.w600),)
       ],

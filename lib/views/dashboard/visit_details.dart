@@ -1,23 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hms_models/hms_models.dart';
 import 'package:pharma/configs/constants.dart';
 import 'package:pharma/controllers/visit_controller.dart';
-import 'package:pharma/models/visit_model/patient_meta_model.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
-import 'package:pharma/models/visit_model/treatment_activity_model.dart';
-import 'package:pharma/utils/date_presentation.dart';
-import 'package:pharma/utils/parsing_helper.dart';
 import 'package:pharma/views/common/components/custom_button.dart';
 import 'package:pharma/views/common/components/loading_widget.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../configs/app_strings.dart';
 import '../../configs/styles.dart';
-import '../../models/patient_model.dart';
-import '../../models/visit_model/visit_model.dart';
-import '../../utils/logger_service.dart';
-import '../../utils/my_safe_state.dart';
 import '../common/app_text_form_field.dart';
 import '../common/components/primary_text.dart';
 import '../common/models/dashboard_prescription_model.dart';
@@ -25,11 +16,11 @@ import '../common/models/dashboard_prescription_model.dart';
 class VisitDetailsScreen extends StatefulWidget {
   static const String routeName = "/VisitDetailsScreen";
 
-  String id = "";
-  VisitModel? visitModel;
-  bool isFromHistory;
+  final String id;
+  final VisitModel? visitModel;
+  final bool isFromHistory;
 
-  VisitDetailsScreen({Key? key, this.id = "", this.visitModel, this.isFromHistory = false}) : super(key: key);
+  const VisitDetailsScreen({Key? key, this.id = "", this.visitModel, this.isFromHistory = false}) : super(key: key);
 
   @override
   State<VisitDetailsScreen> createState() => _VisitDetailsScreenState();
@@ -64,7 +55,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     discount = 0.0;
     finalAmount = 0;
     finalAmount = dashBoardPrescriptionModels.fold(0, ( previousValue, DashboardPrescriptionModel? element) {
-      Log().i(element?.amountController?.text);
+      MyPrint.printOnConsole(element?.amountController?.text ?? "");
       // previousValue + double.parse(element?.amountController?.text ?? "0.0");
       if(element!.amountController!.text.isEmpty){
         return previousValue + ParsingHelper.parseDoubleMethod("0.0");
@@ -72,10 +63,10 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       return  previousValue + element.pharmaBillingItemModel.finalAmount;
     });
     withoutGst = finalAmount;
-    Log().i("totalCGSTandSgst : $totalCGSTandSgst");
+    MyPrint.printOnConsole("totalCGSTandSgst : $totalCGSTandSgst");
 
     double discountAmount = ParsingHelper.parseDoubleMethod((totalCGSTandSgst/100) * finalAmount);
-    Log().i("discountAmount : $discountAmount");
+    MyPrint.printOnConsole("discountAmount : $discountAmount");
     discount = discountAmount;
     finalAmount = (finalAmount + discountAmount.roundToDouble());
     setState(() {});
@@ -93,7 +84,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
         lastDate: DateTime.now());
 
     if(pickedDate != null) {
-      dobController.text = DatePresentation.ddMMMMyyyy(pickedDate);
+      dobController.text = DatePresentation.ddMMMMyyyyTimeStamp(Timestamp.fromDate(pickedDate));
       isEnable = false;
     }
     setState(() {});
@@ -109,7 +100,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       isLoading = true;
       setState(() {});
       pharmaBillingModel.totalAmount = finalAmount;
-      pharmaBillingModel.discount = discount;
+      pharmaBillingModel.discountAmount = discount;
       pharmaBillingModel.patientId = visitModel?.patientId ?? "";
       // pharamBillingModel?.paymentId = "cash_$paymentId";
       // pharamBillingModel?.paymentMode = "CASH";
@@ -121,7 +112,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
           dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel).toList();
 
       visitModel?.pharmaBilling = pharmaBillingModel;
-      visitModel?.treatmentActivity = [TreatmentActivityModel(createdTime: Timestamp.now(),activityMessage: TreatmentActivityStreamEnum.billPay)];
+      visitModel?.treatmentActivity = [TreatmentActivityModel(createdTime: Timestamp.now(),treatmentActivityStatus: TreatmentActivityStatus.billPay)];
 
       await VisitController().updateVisitModelFirebase(
           visitModel ?? VisitModel()).then((value) {
@@ -129,7 +120,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       });
       isLoading = false;
       setState(() {});
-      Log().i("PharmaBillingModel data : ${pharmaBillingModel.toMap()}");
+      MyPrint.printOnConsole("PharmaBillingModel data : ${pharmaBillingModel.toMap()}");
     }
   }
 
@@ -141,7 +132,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       pharmaBillingModel.paymentMode = paymentMode.toUpperCase();
       pharmaBillingModel.paymentStatus = "Paid";
 
-      visitModel?.treatmentActivity.add(TreatmentActivityModel(createdTime: Timestamp.now(),activityMessage: TreatmentActivityStreamEnum.completed));
+      visitModel?.treatmentActivity.add(TreatmentActivityModel(createdTime: Timestamp.now(),treatmentActivityStatus: TreatmentActivityStatus.completed));
       visitModel?.weight = 85;
 
       await VisitController().updateVisitModelFirebase(
@@ -157,8 +148,8 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   Future<void> getData() async {
     if (visitModel != null) {
       if(!widget.isFromHistory) {
-        visitModel?.diagnosis.forEach((visitModelElement) {
-          visitModelElement.prescription.forEach((element) {
+        for (var visitModelElement in (visitModel?.diagnosis ?? [])) {
+          for (var element in visitModelElement.prescription) {
             dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
                 pharmaBillingItemModel: PharmaBillingItemModel(
                   dose: element.totalDose,
@@ -168,23 +159,23 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 mrpController: TextEditingController()
             ),
             );
-          });
-        });
+          }
+        }
       } else {
         pharmaBillingModel = visitModel?.pharmaBilling ?? PharmaBillingModel();
-        visitModel?.pharmaBilling?.items.forEach((element) {
+        for (var element in (visitModel?.pharmaBilling?.items ?? [])) {
           dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
               pharmaBillingItemModel: PharmaBillingItemModel(
                 dose: element.dose,
                 medicineName: element.medicineName,
-                // discount: element.discount,
+                discount: element.discount,
                 finalAmount: element.finalAmount,
                 price: element.price,
               ),
               amountController: TextEditingController(text: element.price.toString() ),
               mrpController: TextEditingController(text:   element.unitCount.toString())
           ));
-        });
+        }
         withoutGst = visitModel?.pharmaBilling?.baseAmount ?? 0.0;
         finalAmount = visitModel?.pharmaBilling?.totalAmount ?? 0.0;
       }
@@ -192,8 +183,8 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
     else {
       visitModel = await VisitController().getVisitModel(widget.id);
       if (visitModel != null) {
-        visitModel?.diagnosis.forEach((visitModelElement) {
-          visitModelElement.prescription.forEach((element) {
+        for (var visitModelElement in (visitModel?.diagnosis ?? [])) {
+          for (var element in visitModelElement.prescription) {
             dashBoardPrescriptionModels.add(DashboardPrescriptionModel(
                 pharmaBillingItemModel: PharmaBillingItemModel(
                   dose: element.totalDose,
@@ -203,8 +194,8 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 mrpController: TextEditingController()
             ),
             );
-          });
-        });
+          }
+        }
       }
     }
   }
@@ -269,7 +260,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 //
                 //
                 //
-                //     Log().i("PharmaBillingModel data : ${pharamBillingModel.toMap()}");
+                //     MyPrint.printOnConsole("PharmaBillingModel data : ${pharamBillingModel.toMap()}");
                 //    },
                 //   ),
                 // )
@@ -336,7 +327,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
         Text(headerText, style: const TextStyle(fontSize: 14.5),),
         AppTextFormField(
           controller: textEditingController,
-          hintText: "Enter ${headerText}",
+          hintText: "Enter $headerText",
         )
       ],
     );
@@ -347,10 +338,8 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Container(
-            child: Text(headerText, style: const TextStyle(fontSize: 14),)),
-        Container(
-            child: const Text(":")),
+        Text(headerText, style: const TextStyle(fontSize: 14),),
+        const Text(":"),
         const SizedBox(width: 15,),
         Flexible(child: Text(text,style: const TextStyle(fontWeight: FontWeight.w600),))
       ],
@@ -428,7 +417,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   }
 
   Widget getPrescriptionTable(){
-    // Log().e("Dasshboard screen ${visitProvider.getPharmaBillingModel!.items}");
+    // MyPrint.printOnConsole("Dasshboard screen ${visitProvider.getPharmaBillingModel!.items}");
 
     return DataTable(
         headingRowHeight: 30,
@@ -502,8 +491,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
   }
 
   Widget getColumnItem(String text){
-    return Expanded(child:Container(
-        child: Center(child: Text(text,style: themeData.textTheme.bodyText1,))));
+    return Expanded(child:Center(child: Text(text,style: themeData.textTheme.bodyText1,)));
   }
 
   DataCell getDataCell(String text){
@@ -537,7 +525,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
                 const SizedBox(height: 10,),
                 amountItemView("Amount", "₹ $withoutGst"),
 
-                amountItemView("Gst", "${totalCGSTandSgst}%"),
+                amountItemView("Gst", "$totalCGSTandSgst%"),
                 const SizedBox(height: 10,),
                 amountItemView("Total Amount", "₹ $finalAmount"),
               ],
@@ -590,7 +578,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
               backgroundColor: Styles.lightPrimaryColor,
             ),
           ),
-          SizedBox(width:10),
+          const SizedBox(width:10),
           Expanded(
               child: CustomButton(
               onTap:pharmaBillingModel.paymentStatus == "Paid" ? null :  () async {

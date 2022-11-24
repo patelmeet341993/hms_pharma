@@ -1,15 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
-import 'package:pharma/models/visit_model/visit_model.dart';
+import 'package:hms_models/configs/constants.dart';
+import 'package:hms_models/models/visit_model/pharma_billings/pharma_billing_item_model.dart';
+import 'package:hms_models/models/visit_model/pharma_billings/pharma_billing_model.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/my_print.dart';
+import 'package:hms_models/utils/parsing_helper.dart';
 import 'package:pharma/providers/visit_provider.dart';
-import 'package:pharma/utils/parsing_helper.dart';
 import 'package:provider/provider.dart';
 
-import '../configs/constants.dart';
-import '../utils/logger_service.dart';
-import 'firestore_controller.dart';
 import 'navigation_controller.dart';
 
 class VisitController {
@@ -24,21 +22,23 @@ class VisitController {
   VisitController._();
 
   Future<void> getVisitList() async {
-    bool isLoading = false;
+    // bool isLoading = false;
     List<VisitModel> visitList = [];
     VisitProvider visitProvider = Provider.of<VisitProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirestoreController().firestore.collection(FirebaseNodes.visitsCollection).get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseNodes.visitsCollectionReference.get();
       List<QueryDocumentSnapshot<Map<String,dynamic>>> documentSnapshot = ParsingHelper.parseListMethod(querySnapshot.docs);
-      documentSnapshot.forEach((element){
+      for (var element in documentSnapshot) {
         visitList.add(VisitModel.fromMap(ParsingHelper.parseMapMethod(element.data())));
-      });
+      }
 
       if(visitList.isNotEmpty) {
         visitProvider.setListVisitModel(visitList);
       }
-    } catch (e,s){
-      Log().e(e,s);
+    }
+    catch (e, s){
+      MyPrint.printOnConsole("Error in VisitController.getVisitList():$e");
+      MyPrint.printOnConsole(s);
     }
   }
 
@@ -47,9 +47,7 @@ class VisitController {
     if(id.isEmpty)return isLoading;
     try {
       VisitModel? visitModel;
-      Query<Map<String, dynamic>> query = FirestoreController().firestore
-          .collection(FirebaseNodes.visitsCollection)
-          .where("id", isEqualTo: id);
+      Query<Map<String, dynamic>> query = FirebaseNodes.visitsCollectionReference.where("id", isEqualTo: id);
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await query.get();
       if (querySnapshot.docs.isNotEmpty) {
         DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
@@ -60,43 +58,43 @@ class VisitController {
         }
       }
 
-      Log().i("in the visitModel!.patientId${visitModel!.patientId}");
+      MyPrint.printOnConsole("in the visitModel!.patientId${visitModel!.patientId}");
 
       VisitProvider visitProvider = Provider.of<VisitProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
       visitProvider.setVisitModel(visitModel);
 
       PharmaBillingModel pharmaBillingModel = PharmaBillingModel();
-      Log().i("in the visitModel!.patientId${pharmaBillingModel.toMap()}");
+      MyPrint.printOnConsole("in the visitModel!.patientId${pharmaBillingModel.toMap()}");
       List<PharmaBillingItemModel> itemModel = [];
 
       pharmaBillingModel.patientId = visitModel.patientId;
-      visitModel.diagnosis.forEach((visitModelElement) {
-        visitModelElement.prescription.forEach((element) {
+      for (var visitModelElement in visitModel.diagnosis) {
+        for (var element in visitModelElement.prescription) {
           itemModel.add(PharmaBillingItemModel(
             dose: element.totalDose,
             medicineName: element.medicineName,
           ));
-        });
-      });
-      Log().i("in the visitModel! itemModel ${itemModel}");
+        }
+      }
+      MyPrint.printOnConsole("in the visitModel! itemModel $itemModel");
 
       pharmaBillingModel.items = itemModel;
-      Log().i("in the visitModel!.before setpharmaBillingModel ${pharmaBillingModel.items}");
+      MyPrint.printOnConsole("in the visitModel!.before setpharmaBillingModel ${pharmaBillingModel.items}");
 
       visitProvider.setpharmaBillingModel(pharmaBillingModel);
-    } catch (e,s){
-      Log().e(e,s);
+    }
+    catch (e,s){
+      MyPrint.printOnConsole("Error in VisitController.getVisitDataFromId():$e");
+      MyPrint.printOnConsole(s);
     }
     return isLoading;
   }
 
   Future<VisitModel?> getVisitModel(String id)async {
-    Log().i("Visit id: $id");
+    MyPrint.printOnConsole("Visit id: $id");
     try {
       VisitModel? visitModel;
-      Query<Map<String, dynamic>> query = FirestoreController().firestore
-          .collection(FirebaseNodes.visitsCollection)
-          .where("id", isEqualTo: id);
+      Query<Map<String, dynamic>> query = FirebaseNodes.visitsCollectionReference.where("id", isEqualTo: id);
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await query.get();
       if (querySnapshot.docs.isNotEmpty) {
         DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
@@ -106,13 +104,13 @@ class VisitController {
         }
       }
 
-      // Log().i("in the visitModel!.patientId${visitModel!.patientId}");
+      // MyPrint.printOnConsole("in the visitModel!.patientId${visitModel!.patientId}");
       //
       // VisitProvider visitProvider = Provider.of<VisitProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
       // visitProvider.setVisitModel(visitModel);
       //
       // PharmaBillingModel pharmaBillingModel = PharmaBillingModel();
-      // Log().i("in the visitModel!.patientId${pharmaBillingModel.toMap()}");
+      // MyPrint.printOnConsole("in the visitModel!.patientId${pharmaBillingModel.toMap()}");
       // List<PharmaBillingItemModel> itemModel = [];
       //
       // pharmaBillingModel.patientId = visitModel.patientId;
@@ -124,52 +122,52 @@ class VisitController {
       //     ));
       //   });
       // });
-      // Log().i("in the visitModel! itemModel ${itemModel}");
+      // MyPrint.printOnConsole("in the visitModel! itemModel ${itemModel}");
       //
       // pharmaBillingModel.items = itemModel;
-      // Log().i("in the visitModel!.before setpharmaBillingModel ${pharmaBillingModel.items}");
+      // MyPrint.printOnConsole("in the visitModel!.before setpharmaBillingModel ${pharmaBillingModel.items}");
       //
       // visitProvider.setpharmaBillingModel(pharmaBillingModel);
       return visitModel;
-    } catch (e,s){
-      Log().e(e,s);
+    }
+    catch (e,s){
+      MyPrint.printOnConsole("Error in VisitController.getVisitModel():$e");
+      MyPrint.printOnConsole(s);
     }
 
     return VisitModel();
   }
 
   Future<VisitModel> getVisitModelFromPatientId(String id) async {
-    Log().i("Patent id: $id");
+    MyPrint.printOnConsole("Patent id: $id");
     try {
       VisitModel? visitModel;
-      Log().i("Patent id: $id");
+      MyPrint.printOnConsole("Patent id: $id");
 
-      Query<Map<String, dynamic>> query = FirestoreController().firestore
-          .collection(FirebaseNodes.visitsCollection)
+      Query<Map<String, dynamic>> query = FirebaseNodes.visitsCollectionReference
           .where("patientId", isEqualTo: id.trim())
           .where("isPrescribed", isEqualTo: true)
           .where("isMedicine", isEqualTo: false);
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await query.get().catchError((error){
-        Log().e("error: $error");
+        MyPrint.printOnConsole("error: $error");
       });
-      Log().i("Patent id: ${querySnapshot.docs.length}");
+      MyPrint.printOnConsole("Patent id: ${querySnapshot.docs.length}");
 
       if (querySnapshot.docs.isNotEmpty) {
         DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
         if ((docSnapshot.data() ?? {}).isNotEmpty) {
           VisitModel model = VisitModel.fromMap(ParsingHelper.parseMapMethod(docSnapshot.data()));
           visitModel = model;
-          print("Error in this ${model.id}");
-
+          MyPrint.printOnConsole("Error in this ${model.id}");
         }
       }
 
 
       return visitModel ?? VisitModel();
-    } catch (e,s){
-      Log().e(e,s);
-      print("Error in this ${e}");
-      print(s);
+    }
+    catch (e,s){
+      MyPrint.printOnConsole("Error in VisitController.getVisitModelFromPatientId():$e");
+      MyPrint.printOnConsole(s);
       return VisitModel();
     }
   }
@@ -177,18 +175,18 @@ class VisitController {
   Future<bool> updateVisitModelFirebase(VisitModel visitModel)async {
     bool isSuccess = false;
     try {
-      Log().i("Patent id: ${visitModel.id}");
-       await FirestoreController().firestore.collection(FirebaseNodes.visitsCollection).doc(visitModel.id).update(visitModel.toMap()).then((value) {
+      MyPrint.printOnConsole("Patent id: ${visitModel.id}");
+       await FirebaseNodes.visitDocumentReference(visitId: visitModel.id).update(visitModel.toMap()).then((value) {
              isSuccess = true;
            })
            .catchError((error){
-        Log().e("error: $error");
+        MyPrint.printOnConsole("error: $error");
       });
       return isSuccess;
-    } catch (e,s){
-      Log().e(e,s);
-      print("Error in this ${e}");
-      print(s);
+    }
+    catch (e,s){
+      MyPrint.printOnConsole("Error in VisitController.updateVisitModelFirebase():$e");
+      MyPrint.printOnConsole(s);
       return isSuccess;
     }
   }

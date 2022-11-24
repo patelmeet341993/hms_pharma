@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pharma/models/visit_model/visit_model.dart';
+import 'package:hms_models/configs/constants.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/my_print.dart';
+import 'package:hms_models/utils/parsing_helper.dart';
 import 'package:pharma/providers/history_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../configs/constants.dart';
-import '../providers/visit_provider.dart';
-import '../utils/logger_service.dart';
-import '../utils/parsing_helper.dart';
-import 'firestore_controller.dart';
 import 'navigation_controller.dart';
 
 class HistoryController {
@@ -23,10 +21,10 @@ class HistoryController {
 
   Future<void> getHistoryData() async {
     try {
-      bool isLoading = false;
+      // bool isLoading = false;
       List<VisitModel> visitList = [];
       HistoryProvider historyProvider = Provider.of<HistoryProvider>(NavigationController.mainScreenNavigator.currentContext!, listen: false);
-        QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirestoreController().firestore.collection(FirebaseNodes.visitsCollection).get();
+        QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseNodes.visitsCollectionReference.get();
         List<QueryDocumentSnapshot<Map<String,dynamic>>> documentSnapshot = ParsingHelper.parseListMethod(querySnapshot.docs);
         documentSnapshot.forEach((element){
           visitList.add(VisitModel.fromMap(ParsingHelper.parseMapMethod(element.data())));
@@ -35,8 +33,9 @@ class HistoryController {
           historyProvider.setListVisitModel(visitList);
         }
     }
-    catch (e,s){
-        Log().e(e,s);
+    catch (e, s){
+      MyPrint.printOnConsole("Error in HistoryController.getHistoryData():$e");
+      MyPrint.printOnConsole(s);
     }
   }
 }

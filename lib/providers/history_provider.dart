@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import '../models/visit_model/visit_model.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
 
 class HistoryProvider extends ChangeNotifier {
   VisitModel? _visitModel;

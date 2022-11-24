@@ -1,17 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pharma/models/visit_model/visit_model.dart';
-import 'package:pharma/views/dashboard/dashboard_screen.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/my_print.dart';
+import 'package:hms_models/utils/parsing_helper.dart';
 import 'package:pharma/views/dashboard/dashboard_screen.dart';
 import 'package:pharma/views/dashboard/visit_details.dart';
 import 'package:pharma/views/history/history_screen.dart';
 
-import '../utils/logger_service.dart';
-import '../utils/parsing_helper.dart';
 import '../views/authentication/login_screen.dart';
 import '../views/homescreen/homescreen.dart';
-import '../views/homescreen/homescreen3.dart';
 import '../views/splashscreen.dart';
 
 class NavigationController {
@@ -35,7 +33,7 @@ class NavigationController {
 
 
   static bool checkDataAndNavigateToSplashScreen() {
-    Log().d("checkDataAndNavigateToSplashScreen called, isFirst:$isFirst");
+    MyPrint.printOnConsole("checkDataAndNavigateToSplashScreen called, isFirst:$isFirst");
 
     if(isFirst) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -48,7 +46,7 @@ class NavigationController {
   }
 
   static Route? onMainGeneratedRoutes(RouteSettings settings) {
-    Log().d("OnMainGeneratedRoutes called for ${settings.name}");
+    MyPrint.printOnConsole("OnMainGeneratedRoutes called for ${settings.name}");
 
     // if(navigationCount == 2 && Uri.base.hasFragment && Uri.base.fragment != "/") {
     //   return null;
@@ -70,7 +68,7 @@ class NavigationController {
       }
     }*/
 
-    Log().d("First Page:$isFirst");
+    MyPrint.printOnConsole("First Page:$isFirst");
     Widget? page;
 
     switch (settings.name) {
@@ -105,10 +103,11 @@ class NavigationController {
         settings: settings,
       );
     }
+    return null;
   }
 
   static Route? onHomeGeneratdRoutes(RouteSettings settings) {
-    Log().d("OnMainGeneratedRoutes called for ${settings.name}");
+    MyPrint.printOnConsole("OnMainGeneratedRoutes called for ${settings.name}");
 
     // if(navigationCount == 2 && Uri.base.hasFragment && Uri.base.fragment != "/") {
     //   return null;
@@ -130,7 +129,7 @@ class NavigationController {
       }
     }*/
 
-    Log().d("First Page:$isFirst");
+    MyPrint.printOnConsole("First Page:$isFirst");
     Widget? page;
 
     switch (settings.name) {
@@ -179,10 +178,11 @@ class NavigationController {
         settings: settings,
       );
     }
+    return null;
   }
 
   static Route? onHistoryGeneratedRoutes(RouteSettings settings) {
-    Log().d("OnMainGeneratedRoutes called for ${settings.name}");
+    MyPrint.printOnConsole("OnMainGeneratedRoutes called for ${settings.name}");
 
     // if(navigationCount == 2 && Uri.base.hasFragment && Uri.base.fragment != "/") {
     //   return null;
@@ -204,7 +204,7 @@ class NavigationController {
       }
     }*/
 
-    Log().d("First Page:$isFirst");
+    MyPrint.printOnConsole("First Page:$isFirst");
     Widget? page;
 
     switch (settings.name) {
@@ -260,6 +260,7 @@ class NavigationController {
         settings: settings,
       );
     }
+    return null;
   }
 
 

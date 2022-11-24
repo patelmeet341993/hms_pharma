@@ -1,15 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pharma/controllers/visit_controller.dart';
-import 'package:pharma/utils/logger_service.dart';
-
-import '../../configs/app_strings.dart';
-import '../../configs/constants.dart';
-import '../../models/visit_model/visit_model.dart';
-import '../common/components/loading_widget.dart';
-import '../common/components/primary_text.dart';
 import '../dashboard/visit_details.dart';
 
 class ScannerScreen extends StatefulWidget {
@@ -28,7 +21,7 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
   void showDialogView()async{
    String value = await showDialog(context: context, builder: (BuildContext context){
       return Dialog(
-        child: Container(
+        child: SizedBox(
           height: 500,
           width: 500,
           child: Stack(
@@ -73,11 +66,11 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
   void showVisitDetailDialog(VisitModel visitModel){
     showDialog(context: context, builder: (BuildContext context){
       return Dialog(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height *.6,
           width: MediaQuery.of(context).size.width *.7,
           child: VisitDetailsScreen(
-                  id: visitModel.id ??"",
+                  id: visitModel.id,
                   visitModel: visitModel,
                 ),
         ),
@@ -104,12 +97,10 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
     return SingleChildScrollView(
       child: Column(
         children: [
-          Container(
-            child: Text("scannedText: ${scannedText}"),
-          ),
+          Text("scannedText: $scannedText"),
           MaterialButton(onPressed: (){
             showDialogView();
-          },child: Text("Scan"),),
+          },child: const Text("Scan"),),
         ],
       ),
     );

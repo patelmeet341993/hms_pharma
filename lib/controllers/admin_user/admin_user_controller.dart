@@ -2,16 +2,11 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hms_models/hms_models.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/app_strings.dart';
-import '../../configs/constants.dart';
-import '../../models/admin_user_model.dart';
 import '../../providers/admin_user_provider.dart';
-import '../../utils/logger_service.dart';
-import '../../utils/my_toast.dart';
-import '../../utils/my_utils.dart';
-import '../firestore_controller.dart';
 import '../navigation_controller.dart';
 
 class AdminUserController {
@@ -19,13 +14,13 @@ class AdminUserController {
 
   Future<AdminUserModel?> createAdminUserWithUsernameAndPassword({required BuildContext context, required AdminUserModel userModel, String userType = AdminUserType.admin,}) async {
     if(userModel.username.isEmpty || userModel.password.isEmpty) {
-      MyToast.showError("UserName is empty or password is empty", context);
+      MyToast.showError(context: context, msg: "UserName is empty or password is empty",);
       return null;
     }
 
     AdminUserModel? adminUserModel;
 
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirestoreController().firestore.collection(FirebaseNodes.adminUsersCollection).where("role", isEqualTo: userType).where("username", isEqualTo: userModel.username).get();
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseNodes.adminUsersCollectionReference.where("role", isEqualTo: userType).where("username", isEqualTo: userModel.username).get();
     if(querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
       if((docSnapshot.data() ?? {}).isNotEmpty) {
@@ -48,15 +43,16 @@ class AdminUserController {
         scannerData: userModel.scannerData,
       );
 
-      bool isCreationSuccess = await FirestoreController().firestore.collection(FirebaseNodes.adminUsersCollection).doc(adminUserModel.id).set(adminUserModel.toMap()).then((value) {
-        Log().i("Admin User with Id:${adminUserModel!.id} Created Successfully");
+      bool isCreationSuccess = await FirebaseNodes.adminUserDocumentReference(userId: adminUserModel.id).set(adminUserModel.toMap()).then((value) {
+        MyPrint.printOnConsole("Admin User with Id:${adminUserModel!.id} Created Successfully");
         return true;
       })
       .catchError((e, s) {
-        Log().e("Error in Creating Admin User:$e", s);
+        MyPrint.printOnConsole("Error in Creating Admin User:$e");
+        MyPrint.printOnConsole(s);
         return false;
       });
-      Log().i("isCreationSuccess:$isCreationSuccess");
+      MyPrint.printOnConsole("isCreationSuccess:$isCreationSuccess");
 
       if(isCreationSuccess) {
         return adminUserModel;
@@ -66,7 +62,7 @@ class AdminUserController {
       }
     }
     else {
-      MyToast.showError(AppStrings.givenUserAlreadyExist, context);
+      MyToast.showError(context: context, msg: AppStrings.givenUserAlreadyExist,);
       return null;
     }
   }
@@ -81,8 +77,8 @@ class AdminUserController {
         adminUserStreamSubscription = null;
       }
 
-      adminUserStreamSubscription = FirestoreController().firestore.collection(FirebaseNodes.adminUsersCollection).doc(adminUserId).snapshots().listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
-        Log().i("Admin User Document Updated.\n"
+      adminUserStreamSubscription = FirebaseNodes.adminUserDocumentReference(userId: adminUserId).snapshots().listen((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+        MyPrint.printOnConsole("Admin User Document Updated.\n"
             "Snapshot Exist:${snapshot.exists}\n"
             "Data:${snapshot.data()}");
 
@@ -97,7 +93,7 @@ class AdminUserController {
         }
       });
 
-      Log().d("Admin User Stream Started");
+      MyPrint.printOnConsole("Admin User Stream Started");
     }
   }
 
