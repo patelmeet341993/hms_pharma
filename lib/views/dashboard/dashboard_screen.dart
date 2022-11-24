@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../configs/app_strings.dart';
 import '../../configs/styles.dart';
-import '../../models/dashboard_prescription_model.dart';
+import '../common/models/dashboard_prescription_model.dart';
 import '../../models/visit_model/visit_model.dart';
 import '../../utils/logger_service.dart';
 import '../../utils/my_safe_state.dart';

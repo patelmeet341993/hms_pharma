@@ -46,7 +46,7 @@ class AuthenticationController {
           adminUserProvider.setAdminUserId(newModel.id);
           adminUserProvider.setAdminUserModel(newModel);
           if(adminUserModel != newModel) {
-            SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, jsonEncode(newModel.toMap()));
+            SharedPrefManager().setString(SharePrefrenceKeys.loggedInUser, jsonEncode(newModel.toMap(toJson: true)));
           }
           return newModel;
         }
