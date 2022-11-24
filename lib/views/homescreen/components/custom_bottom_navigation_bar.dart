@@ -67,8 +67,7 @@ class CustomBottomNavigation extends StatefulWidget {
   _CustomBottomNavigationState createState() => _CustomBottomNavigationState();
 }
 
-class _CustomBottomNavigationState extends State<CustomBottomNavigation>
-    with SingleTickerProviderStateMixin {
+class _CustomBottomNavigationState extends State<CustomBottomNavigation> with SingleTickerProviderStateMixin {
   //ThemeData
   late ThemeData themeData;
   // CustomAppTheme customAppTheme;
@@ -275,15 +274,13 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
       builder: (BuildContext context, AppThemeProvider value,_) {
         // customAppTheme = themeData;
         return  LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                if (ScreenMedia.isMinimumSize(ScreenMediaType.XS,
-                    currentWidth: constraints.maxWidth)) {
-                  return mobileScreen();
-                }
-                return largeScreen(
-                    ScreenMedia.getScreenMediaType(constraints.maxWidth),true);
-              },
-            );
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (ScreenMedia.isMinimumSize(ScreenMediaType.XS, currentWidth: constraints.maxWidth)) {
+              return mobileScreen();
+            }
+            return largeScreen(ScreenMedia.getScreenMediaType(constraints.maxWidth),true);
+          },
+        );
       },
     );
   }
@@ -462,7 +459,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
+                  /*Container(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: DashboardHeader(title: titles[_currentIndex],
@@ -497,10 +494,9 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation>
                         ),
                         isActionVisible: true),
                     ),
-                  ),
+                  ),*/
                   Expanded(
-                    child: Container(
-                        child: Center(child: screens[_currentIndex])),
+                    child: screens[_currentIndex],
                   ),
                 ],
               ),

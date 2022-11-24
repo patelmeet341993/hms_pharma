@@ -23,6 +23,8 @@ class AppConstants {
   static const cgstValue = "12";
 
 
+
+  static String hospitalId = "Hospital_1";
 }
 
 class PatientGender {

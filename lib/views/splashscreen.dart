@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../controllers/admin_user/admin_user_controller.dart';
 import '../controllers/authentication_controller.dart';
 import '../controllers/navigation_controller.dart';
 import '../models/admin_user_model.dart';
 import '../utils/logger_service.dart';
 import 'authentication/login_screen.dart';
+import 'common/components/common_text.dart';
 import 'homescreen/homescreen.dart';
 import 'homescreen/homescreen3.dart';
 
@@ -22,13 +24,14 @@ class _SplashScreenState extends State<SplashScreen> {
   late ThemeData themeData;
 
   Future<void> checkLogin() async {
-    // await Future.delayed(Duration(seconds: 2));
+    // await Future.delayed(Duration(seconds: 5));
 
     AdminUserModel? user = await AuthenticationController().isUserLoggedIn();
     Log().i("User From isUserLoggedIn:$user");
 
     NavigationController.isFirst = false;
     if(user != null) {
+      AdminUserController().startAdminUserSubscription();
       Navigator.pushNamedAndRemoveUntil(NavigationController.mainScreenNavigator.currentContext!, HomeScreen.routeName, (route) => false);
     }
     else {
@@ -49,9 +52,38 @@ class _SplashScreenState extends State<SplashScreen> {
     themeData = Theme.of(context);
 
     return Container(
+      color: themeData.backgroundColor,
       child: Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.inkDrop(color: themeData.primaryColor, size: 40),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+          child: Column(
+            children: [
+              /*Center(
+                child: LoadingAnimationWidget.inkDrop(color: themeData.backgroundColor, size: 40),
+              ),*/
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                   Container(
+                       padding: const EdgeInsets.all(8),
+                       decoration: BoxDecoration(
+                         border: Border.all(color: Colors.black,width: 2),
+                         borderRadius: BorderRadius.circular(5)
+                       ),
+                       child: Icon(Icons.vaccines,color: themeData.primaryColor,size: 80),
+                   ),
+                   const SizedBox(height: 18),
+                   const CommonBoldText(text: "Hospital Management \n System",fontSize: 20,textAlign: TextAlign.center,),
+                  ],
+                ),
+              ),
+              Center(
+                child: LoadingAnimationWidget.inkDrop(color: themeData.primaryColor, size: 40),
+              ),
+            ],
+          ),
         ),
       ),
     );

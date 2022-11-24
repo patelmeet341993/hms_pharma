@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
 
-import '../models/dashboard_prescription_model.dart';
+import '../views/common/models/dashboard_prescription_model.dart';
 import '../models/visit_model/visit_model.dart';
 import '../models/visit_model/visit_model.dart';
 import '../utils/logger_service.dart';

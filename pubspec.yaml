@@ -66,6 +66,7 @@ dependencies:
   fluttertoast: ^8.0.9
   mobile_scanner: ^2.0.0
   lottie: ^1.4.2
+  flutter_feather_icons: ^2.0.0+1
 
   ####################
   # State management #
@@ -80,7 +81,7 @@ dependencies:
   connectivity_plus: ^2.3.6+1
   uuid: ^3.0.6
   equatable: ^2.0.5
-
+  qr_flutter: ^4.0.0
 
 
 dev_dependencies:
@@ -109,6 +110,7 @@ flutter:
   assets:
    - assets/lotties/
    - assets/
+   - assets/extra/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
