@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:pharma/models/visit_model/pharma_billings/pharma_billing_model.dart';
+import 'package:hms_models/models/visit_model/pharma_billings/pharma_billing_model.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/my_print.dart';
 
 import '../views/common/models/dashboard_prescription_model.dart';
-import '../models/visit_model/visit_model.dart';
-import '../utils/logger_service.dart';
 
 class VisitProvider extends ChangeNotifier {
   VisitModel? _visitModel;
@@ -11,6 +11,9 @@ class VisitProvider extends ChangeNotifier {
   PharmaBillingModel? _pharmaBillingModel;
 
   DashboardPrescriptionModel? _dashboardPrescriptionModel;
+
+  List<VisitModel> _visitList = [];
+
 
   //getters
 
@@ -26,7 +29,7 @@ class VisitProvider extends ChangeNotifier {
   PharmaBillingModel? get getPharmaBillingModel {
 
     if(_pharmaBillingModel != null) {
-      Log().i("getPharmaBillingModel method ${_pharmaBillingModel?.items}");
+      MyPrint.printOnConsole("getPharmaBillingModel method ${_pharmaBillingModel?.items}");
 
       return PharmaBillingModel.fromMap(_pharmaBillingModel!.toMap());
     }
@@ -40,7 +43,7 @@ class VisitProvider extends ChangeNotifier {
   DashboardPrescriptionModel? get getDashboardPrescriptionModel {
 
     if(_dashboardPrescriptionModel != null) {
-      Log().i("getPharmaBillingModel method ${_dashboardPrescriptionModel?.pharmaBillingItemModel}");
+      MyPrint.printOnConsole("getPharmaBillingModel method ${_dashboardPrescriptionModel?.pharmaBillingItemModel}");
 
       return _dashboardPrescriptionModel;
     }
@@ -50,6 +53,8 @@ class VisitProvider extends ChangeNotifier {
     }
 
   }
+
+  List<VisitModel> get visitList => _visitList;
 
 
   //setters
@@ -73,7 +78,7 @@ class VisitProvider extends ChangeNotifier {
   }
 
   void setpharmaBillingModel(PharmaBillingModel? pharmaBillingModel, {bool isNotify = true}) {
-    Log().i("setpharmaBillingModel.paymentId ${pharmaBillingModel?.items}");
+    MyPrint.printOnConsole("setpharmaBillingModel.paymentId ${pharmaBillingModel?.items}");
 
     if (pharmaBillingModel != null) {
       if (_pharmaBillingModel != null) {
@@ -86,14 +91,14 @@ class VisitProvider extends ChangeNotifier {
     else {
       _pharmaBillingModel = null;
     }
-    Log().i("setpharmaBillingModel.paymentId ${_pharmaBillingModel?.items}");
+    MyPrint.printOnConsole("setpharmaBillingModel.paymentId ${_pharmaBillingModel?.items}");
 
     if (isNotify) {
-      Log().i("in notify lisetners");
+      MyPrint.printOnConsole("in notify lisetners");
 
       notifyListeners();
     }
-    Log().i("getPharmaBillingModel.after setting ${getPharmaBillingModel?.items}");
+    MyPrint.printOnConsole("getPharmaBillingModel.after setting ${getPharmaBillingModel?.items}");
 
   }
 
@@ -111,9 +116,16 @@ class VisitProvider extends ChangeNotifier {
       _dashboardPrescriptionModel = null;
     }
     if (isNotify) {
-      Log().i("in notify lisetners");
+      MyPrint.printOnConsole("in notify lisetners");
 
       notifyListeners();
     }
   }
+
+  void setListVisitModel(List<VisitModel> visitModel, {bool isNotify = true}) {
+    _visitList.clear();
+    _visitList = visitModel;
+    if(isNotify) {notifyListeners();}
+  }
+
 }

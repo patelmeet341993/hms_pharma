@@ -1,18 +1,24 @@
-
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:hms_models/models/visit_model/visit_model.dart';
+import 'package:hms_models/utils/my_print.dart';
+import 'package:hms_models/utils/size_config.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pharma/configs/styles.dart';
 import 'package:pharma/controllers/authentication_controller.dart';
 import 'package:pharma/providers/app_theme_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pharma/providers/home_page_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../configs/app_theme.dart';
-import '../../../utils/SizeConfig.dart';
+import '../../../controllers/visit_controller.dart';
 import '../../common/components/ScreenMedia.dart';
+import '../../dashboard/visit_details.dart';
 import 'dashboard_header.dart';
-
 
 class CustomBottomNavigation extends StatefulWidget {
   final List<IconData> icons;
@@ -25,6 +31,7 @@ class CustomBottomNavigation extends StatefulWidget {
   final Widget? backButton;
   final Color? splashColor, highlightColor, brandTextColor, verticalDividerColor;
   final Widget? floatingActionButton;
+  final HomePageProvider? homeProvider;
 
   const CustomBottomNavigation({
     Key? key,
@@ -43,9 +50,9 @@ class CustomBottomNavigation extends StatefulWidget {
     this.highlightColor,
     this.floatingActionButton,
     this.brandTextColor,
-    this.verticalDividerColor,
-    this.bottomNavigationElevation,
-  }) : super(key: key);
+    this.homeProvider,
+    this.verticalDividerColor, this.bottomNavigationElevation,
+   }) : super(key: key);
 
   @override
   _CustomBottomNavigationState createState() => _CustomBottomNavigationState();
@@ -79,24 +86,126 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
 
   ValueNotifier<bool>? _isExtended;
 
-  _handleTabSelection() {
+  void _handleTabSelection() {
     changeTab(_tabController!.index);
   }
 
-  onTapped(value) {
+  void onTapped(value) {
     changeTab(value);
   }
 
-  dispose() {
-    super.dispose();
-    _tabController!.dispose();
+  void changeTab(int index) {
+    setState(() {
+      MyPrint.printOnConsole("indexxxx:$index");
+      _currentIndex = index;
+      widget.homeProvider?.setHomeTabIndex(index);
+      _tabController!.index = index;
+    });
   }
 
-  changeTab(int index) {
-    setState(() {
-      print("indexxxx:${index}");
-      _currentIndex = index;
-      _tabController!.index = index;
+  void showLogoutDialouge(){
+    showDialog(context: context, builder: (BuildContext context){
+      return CupertinoAlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout ? "),
+        actions: [
+          CupertinoButton(child: const Text("Cancle"), onPressed: ()=>Navigator.pop(context)),
+          CupertinoButton(child: const Text("Confirm"), onPressed: ()=>AuthenticationController().logout(context: context))
+        ],
+      );
+    });
+  }
+  String scannedText = "";
+  VisitModel? visitModel;
+
+  void showDialogView()async{
+    String value = await showDialog(context: context, builder: (BuildContext context){
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          height: 500,
+          width: 500,
+          decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10)
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                MobileScanner(
+                    allowDuplicates: true,
+                    controller: MobileScannerController(
+                    facing: CameraFacing.front, torchEnabled: true),
+                    onDetect: (barcode, args) {
+                      if (barcode.rawValue == null) {
+                        debugPrint('Failed to scan Barcode');
+                      } else {
+                        final String code = barcode.rawValue ?? "";
+                        debugPrint('Barcode found! $code');
+                        if(code.isNotEmpty){
+                          scannedText = code;
+                          setState(() {});
+                          Navigator.pop(context,code);
+                        }
+                      }
+                    }),
+                Lottie.asset('assets/lotties/scan.json',)
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+    if(value.isNotEmpty){
+      getVisitData(value);
+    }
+  }
+
+  Future<void> getVisitData(String id)async{
+    await VisitController().getVisitModelFromPatientId(id).then((VisitModel value) {
+      showVisitDetailDialog(value);
+    });
+    setState(() {});
+  }
+
+  void showVisitDetailDialog(VisitModel visitModel){
+    showDialog(context: context, builder: (BuildContext context){
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height *.6,
+              width: MediaQuery.of(context).size.width *.7,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10)
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: VisitDetailsScreen(
+                  id: visitModel.id,
+                  visitModel: visitModel,
+                ),
+              ),
+            ),
+            Positioned(
+              right: -10,
+              top: -10,
+              child: MaterialButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                minWidth: 20,
+                padding: const EdgeInsets.all(10),
+                color: Styles.lightPrimaryColor,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.clear,color: Colors.white,size: 20,),
+              ),
+            )
+          ],
+        ),
+      );
     });
   }
 
@@ -106,7 +215,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
 
     //Final Variables
     icons = widget.icons;
-    activeIcons = widget.activeIcons ?? icons;
+    activeIcons = widget.activeIcons;
     screens = widget.screens;
     titles = widget.titles;
     activeColor = widget.activeColor!;
@@ -144,6 +253,12 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _tabController!.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     return Consumer<AppThemeProvider>(
@@ -176,7 +291,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
               size: activeIconSize,
             ),
             Spacing.height(4),
-            titles != null
+            titles.isNotEmpty
                 ? Text(
               titles[i],
               style: AppTheme.getTextStyle(
@@ -185,7 +300,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                   activeColor ?? themeData.colorScheme.primary,
                   fontWeight: FontWeight.w600),
             )
-                : SizedBox()
+                : const SizedBox()
           ],
         )
             : Icon(
@@ -199,19 +314,19 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
     return Scaffold(
       backgroundColor: themeData.backgroundColor,
       appBar: PreferredSize(
-        preferredSize: Size(double.infinity, 80),
+        preferredSize: const Size(double.infinity, 80),
         child: AppBar(
           backgroundColor: themeData.backgroundColor,
           toolbarHeight: 80,
           // primary: true,
           elevation: 0,
-        title: DashboardHeader(title: titles[_currentIndex],),
+        title: DashboardHeader(title: titles[_currentIndex]),
         ),
       ),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: BottomAppBar(
-          elevation: bottomNavigationElevation??4,
-          shape: CircularNotchedRectangle(),
+          elevation: bottomNavigationElevation,
+          shape: const CircularNotchedRectangle(),
           child: Container(
             decoration: BoxDecoration(
               color: navigationBackground ?? themeData.bottomAppBarTheme.color,
@@ -227,7 +342,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
               dragStartBehavior: DragStartBehavior.start,
 
               controller: _tabController,
-              indicator: BoxDecoration(),
+              indicator: const BoxDecoration(),
               indicatorSize: TabBarIndicatorSize.tab,
               indicatorColor: themeData.colorScheme.primary,
               tabs: tabs,
@@ -245,8 +360,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
   Widget largeScreen(ScreenMediaType screenMediaType, bool isExtended) {
     List<NavigationRailDestination> rails = [];
 
-    bool isTablet = ScreenMedia.isMinimumSize(ScreenMediaType.LG,
-        currentScreenMediaType: screenMediaType);
+    // bool isTablet = ScreenMedia.isMinimumSize(ScreenMediaType.LG, currentScreenMediaType: screenMediaType);
 
     //Large Screen
     // if (isTablet) _isExtended = ValueNotifier<bool>(false);
@@ -266,7 +380,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
             color: activeColor ?? themeData.colorScheme.primary,
             size: 18,
           ),
-          label: titles != null
+          label: titles.isNotEmpty
               ? Text(
             titles[i],
             style: AppTheme.getTextStyle(themeData.textTheme.caption!,
@@ -275,13 +389,15 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                     : (color ?? themeData.colorScheme.onBackground),
                 fontWeight: FontWeight.w600),
           )
-              : Text(""),
+              : const Text(""),
         ),
       );
     }
 
     return Scaffold(
+
       floatingActionButton: floatingActionButton,
+
       body: Row(
         children: <Widget>[
           ValueListenableBuilder<bool>(
@@ -296,8 +412,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                     ),
                   ),
                   child: NavigationRail(
-
-                    backgroundColor:Color(0xfffbfbff),
+                    backgroundColor:const Color(0xfffbfbff),
                     elevation: 1,
                     extended: isExtended,
                     useIndicator: true,
@@ -306,11 +421,16 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                       extended: _isExtended!,
                       brandTextColor: brandTextColor!,
                     ),
-                    selectedIndex: _currentIndex,
+                    selectedIndex: widget.homeProvider?.homeTabIndex,
                     onDestinationSelected: (int index) {
-                      setState(() {
-                        changeTab(index);
-                      });
+                      MyPrint.printOnConsole("indexxxxxx: $index screen length: ${screens.length}");
+                      if(index == screens.length - 1){
+                        showLogoutDialouge();
+                      } else {
+                        setState(() {
+                          changeTab(index);
+                        });
+                      }
                     },
                     minExtendedWidth: 200,
                     labelType: NavigationRailLabelType.none,
@@ -326,24 +446,47 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
           ),
           Expanded(
             child: Container(
-              color: Color(0xfffbfbff),
+              color: const Color(0xfffbfbff),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /*Container(
+                  Container(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: DashboardHeader(title: titles[_currentIndex],
-                        actions: IconButton(
-                          icon: Icon(Icons.logout,color: Colors.black,),
-                          onPressed: (){
-                            showLogoutDialouge();
-                          },
+                        isBackVisible: widget.homeProvider?.homeTabIndex == -1 ? true: false,
+                        actions: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: MaterialButton(
+                                onPressed: (){
+                                  showDialogView();
+                                },
+                                padding: EdgeInsets.all(12),
+                                minWidth: 20,
+                                color: Styles.lightPrimaryColor,
+                                splashColor: Colors.white10,
+                                highlightColor: Colors.white24,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                child: Image.asset("assets/qrScan.png",height: 30,width: 30,fit: BoxFit.cover,color: Colors.white,),
+                              ),
+                            ),
+                            Visibility(
+                              visible: _currentIndex == 3? true:false,
+                              child: IconButton(
+                                icon: Icon(Icons.logout,color: Colors.black,),
+                                onPressed: (){
+                                  showLogoutDialouge();
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        isActionVisible: _currentIndex == 3? true:false,),
+                        isActionVisible: true),
                     ),
-                  ),*/
+                  ),
                   Expanded(
                     child: screens[_currentIndex],
                   ),
@@ -355,21 +498,6 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
       ),
     );
   }
-
-  void showLogoutDialouge(){
-    showDialog(context: context, builder: (BuildContext context){
-      return CupertinoAlertDialog(
-        title: Text("Logout"),
-        content: Text("Are you sure you want to logout ? "),
-        actions: [
-          CupertinoButton(child: Text("Cancle"), onPressed: ()=>Navigator.pop(context)),
-          CupertinoButton(child: Text("Confirm"), onPressed: ()=>AuthenticationController().logout(context: context))
-        ],
-      );
-    });
-  }
-
-
 }
 
 class _NavigationRailHeader extends StatelessWidget {
@@ -379,7 +507,7 @@ class _NavigationRailHeader extends StatelessWidget {
   const _NavigationRailHeader({
     required this.extended,
     this.brandTextColor,
-  }) : assert(extended != null);
+  });
 
   @override
   Widget build(BuildContext context) {

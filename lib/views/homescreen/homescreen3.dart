@@ -60,7 +60,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
                 SideNavigationBar(
                   theme: SideNavigationBarTheme(
                       backgroundColor: themeData.drawerTheme.backgroundColor,
-                      itemTheme: const SideNavigationBarItemTheme(),
+                      itemTheme: SideNavigationBarItemTheme(),
                       togglerTheme: const SideNavigationBarTogglerTheme(),
                       dividerTheme: const SideNavigationBarDividerTheme(showHeaderDivider: true, showMainDivider: true, showFooterDivider: false)),
                   selectedIndex: provider.homeTabIndex,

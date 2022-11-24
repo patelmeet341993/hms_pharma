@@ -1,5 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:hms_models/utils/my_print.dart';
+import 'package:pharma/providers/history_provider.dart';
 import 'package:pharma/providers/home_page_provider.dart';
 import 'package:pharma/providers/visit_provider.dart';
 import 'package:provider/provider.dart';
@@ -9,14 +11,13 @@ import '../controllers/navigation_controller.dart';
 import '../providers/admin_user_provider.dart';
 import '../providers/app_theme_provider.dart';
 import '../providers/connection_provider.dart';
-import '../utils/logger_service.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Log().d("MyApp Build Called");
+    MyPrint.printOnConsole("MyApp Build Called");
 
     return MultiProvider(
       providers: [
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<HomePageProvider>(create: (_) => HomePageProvider(), lazy: false),
         ChangeNotifierProvider<AdminUserProvider>(create: (_) => AdminUserProvider(), lazy: false),
         ChangeNotifierProvider<VisitProvider>(create: (_) => VisitProvider(), lazy: false),
+        ChangeNotifierProvider<HistoryProvider>(create: (_) => HistoryProvider(),lazy: false,),
       ],
       child: MainApp(),
     );
@@ -37,11 +39,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Log().d("MainApp Build Called");
+    MyPrint.printOnConsole("MainApp Build Called");
 
     return Consumer<AppThemeProvider>(
       builder: (BuildContext context, AppThemeProvider appThemeProvider, Widget? child) {
-        //Log().i("ThemeMode:${appThemeProvider.themeMode}");
+        //MyPrint.printOnConsole("ThemeMode:${appThemeProvider.themeMode}");
 
         return MaterialApp(
           debugShowCheckedModeBanner: false,

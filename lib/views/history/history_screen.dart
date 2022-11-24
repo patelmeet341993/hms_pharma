@@ -3,96 +3,93 @@ import 'package:flutter/material.dart';
 import 'package:hms_models/models/visit_model/patient_meta_model.dart';
 import 'package:hms_models/models/visit_model/visit_model.dart';
 import 'package:hms_models/utils/date_presentation.dart';
-import 'package:hms_models/utils/my_safe_state.dart';
-import 'package:pharma/providers/home_page_provider.dart';
-import 'package:pharma/views/common/components/loading_widget.dart';
-import 'package:pharma/views/dashboard/visit_details.dart';
+import 'package:pharma/controllers/history_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../configs/app_strings.dart';
 import '../../controllers/navigation_controller.dart';
-import '../../controllers/visit_controller.dart';
-import '../../providers/visit_provider.dart';
+import '../../providers/history_provider.dart';
+import '../../providers/home_page_provider.dart';
+import '../common/components/loading_widget.dart';
+import '../dashboard/visit_details.dart';
 
-class DashBoardMainScreen extends StatefulWidget {
-  static const String routeName = "/DashBoardMainScreen";
+class HistoryMainScreen extends StatefulWidget {
+  static const String routeName = "/HistoryMainScreen";
 
-  const DashBoardMainScreen({Key? key}) : super(key: key);
+  const HistoryMainScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashBoardMainScreen> createState() => _DashBoardMainScreenState();
+  State<HistoryMainScreen> createState() => _HistoryMainScreenState();
 }
 
-class _DashBoardMainScreenState extends State<DashBoardMainScreen> {
+class _HistoryMainScreenState extends State<HistoryMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      key: NavigationController.dashboardScreenNavigator,
-      onGenerateRoute: NavigationController.onHomeGeneratdRoutes,
-      initialRoute: DashBoardScreen.routeName,
+      key: NavigationController.historyScreenNavigator,
+      onGenerateRoute: NavigationController.onHistoryGeneratedRoutes,
+      initialRoute: HistoryScreen.routeName,
     );
   }
 }
 
+class HistoryScreen extends StatefulWidget {
+  static const String routeName = "/HistoryScreen";
 
-
-
-
-class DashBoardScreen extends StatefulWidget {
-  static const String routeName = "/DashBoardScreen";
-
-  const DashBoardScreen({Key? key}) : super(key: key);
+  const HistoryScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashBoardScreen> createState() => _DashBoardScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
+class _HistoryScreenState extends State<HistoryScreen> {
 
   Future? getVisitListData;
-  late VisitProvider visitProvider;
+  late HistoryProvider historyProvider;
 
   Future<void> getVisitList() async {
-    await VisitController().getVisitList();
+    await HistoryController().getHistoryData();
   }
 
   @override
   void initState() {
     super.initState();
     getVisitListData = getVisitList();
-    visitProvider = Provider.of<VisitProvider>(context,listen: false);
+    historyProvider = Provider.of<HistoryProvider>(context,listen: false);
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: getMainBody(),
+      body: mainBody(),
     );
   }
 
-  Widget getMainBody(){
+ Widget mainBody() {
     return FutureBuilder(
-      future: getVisitListData,
-      builder: (BuildContext context, AsyncSnapshot asyncSnapshot){
+      future:getVisitListData,
+      builder: (BuildContext context,AsyncSnapshot asyncSnapshot){
         if(asyncSnapshot.connectionState == ConnectionState.done){
           return getVisitListView();
-        } else {
+        }
+        else {
           return const Center(child: LoadingWidget());
         }
       },
     );
-  }
+ }
 
   Widget getVisitListView(){
-    if(visitProvider.visitList.isEmpty){
+    if(historyProvider.visitList.isEmpty){
       return const Text("No Data");
     }
     return ListView.builder(
-        itemCount: visitProvider.visitList.length,
+        itemCount: historyProvider.visitList.length,
         itemBuilder: (BuildContext context,int index){
-      return visitItemView(visitProvider.visitList[index]);
-    });
+          return visitItemView(historyProvider.visitList[index]);
+        });
   }
 
   Widget visitItemView(VisitModel visitModel){
@@ -112,10 +109,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
       child: InkWell(
         borderRadius: BorderRadius.circular(5),
         onTap: (){
-          Navigator.pushNamed(context, VisitDetailsScreen.routeName, arguments: {"id":visitModel.id, "visitModel":visitModel.toMap(), "isFromHistory" : false});
+          Provider.of<HomePageProvider>(context,listen: false).setBuildContext(NavigationController.historyScreenNavigator.currentContext ?? context);
+          Navigator.pushNamed(context, VisitDetailsScreen.routeName, arguments: {"id":visitModel.id, "visitModel":visitModel.toMap(), "isFromHistory":true});
           Provider.of<HomePageProvider>(context,listen: false).setHomeTabIndex(-1);
-          Provider.of<HomePageProvider>(context,listen: false).setBuildContext(NavigationController.dashboardScreenNavigator.currentContext ?? context);
-
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,5 +166,4 @@ class _DashBoardScreenState extends State<DashBoardScreen> with MySafeState {
       ],
     );
   }
-
 }

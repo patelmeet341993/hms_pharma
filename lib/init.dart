@@ -6,11 +6,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hms_models/utils/my_http_overrides.dart';
+import 'package:hms_models/utils/my_print.dart';
 
 import 'configs/credentials.dart';
 import 'controllers/app_controller.dart';
-import 'utils/logger_service.dart';
-import 'utils/my_http_overrides.dart';
 
 /// Runs the app in [runZonedGuarded] to handle all types of errors, including [FlutterError]s.
 /// Any error that is caught will be send to Sentry backend
@@ -20,8 +20,9 @@ Future<void>? runErrorSafeApp(VoidCallback appRunner, {bool isDev = false}) {
       await initApp(isDev: isDev);
       appRunner();
     },
-    (e, stackTrace) {
-      Log().e(e, stackTrace);
+    (e, s) {
+      MyPrint.printOnConsole("Error in runZonedGuarded:$e");
+      MyPrint.printOnConsole(s);
       // AnalyticsController().recordError(e, stackTrace);
     },
   );
@@ -32,13 +33,13 @@ Future<void> initApp({bool isDev = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
   AppController().isDev = isDev;
 
-  Log().i("IsDev:$isDev");
+  MyPrint.printOnConsole("IsDev:$isDev");
 
   List<Future> futures = [];
 
   if (kIsWeb) {
     FirebaseOptions options = getFirebaseOptions(isDev: isDev);
-    Log().i(options);
+    MyPrint.printOnConsole(options);
 
     futures.addAll([
       Firebase.initializeApp(
@@ -76,6 +77,5 @@ Future<void> initApp({bool isDev = false}) async {
       ),
     ]);
   }
-  Log.tag = '';
-  Log().d('Running ${isDev ? 'dev' : 'prod'} version...');
+  MyPrint.printOnConsole('Running ${isDev ? 'dev' : 'prod'} version...');
 }

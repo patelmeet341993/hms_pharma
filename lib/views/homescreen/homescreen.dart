@@ -1,3 +1,4 @@
+import 'package:pharma/providers/home_page_provider.dart';
 import 'package:pharma/views/homescreen/components/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:pharma/views/profile.dart';
@@ -23,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late ThemeData themeData;
+  late HomePageProvider homeProvider;
 
   List<HomeScreenComponentModel> components = [];
 
@@ -35,7 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     themeData = Theme.of(context);
+    homeProvider = Provider.of<HomePageProvider>(context, listen: false);
     return mainBody();
   }
 
@@ -49,7 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
       activeColor: themeData.colorScheme.primary,
       navigationBackground: themeData.backgroundColor,
       brandTextColor: themeData.colorScheme.onBackground,
-      initialIndex: 0,
+      initialIndex: homeProvider.homeTabIndex,
+      homeProvider: homeProvider,
       splashColor: themeData.splashColor,
       highlightColor: themeData.highlightColor,
       backButton: Container(),

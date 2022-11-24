@@ -4,18 +4,20 @@ import 'package:pharma/configs/app_strings.dart';
 import '../../configs/styles.dart';
 
 class AppTextFormField extends StatelessWidget {
-     const AppTextFormField({Key? key, required this.controller,this.hintText = "Enter", this.textAlign = TextAlign.start, this.onChanged}) : super(key: key);
+     const AppTextFormField({Key? key, required this.controller, this.enabled = true, this.hintText = "Enter", this.textAlign = TextAlign.start, this.onChanged}) : super(key: key);
 
   final TextEditingController controller;
   final String hintText;
   final TextAlign textAlign;
   final Function(String? val)? onChanged;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       textAlign:textAlign ,
+      enabled: enabled,
       onChanged: onChanged,
       decoration: InputDecoration(
         filled: true,

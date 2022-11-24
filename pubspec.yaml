@@ -39,15 +39,8 @@ dependencies:
   # Core #
   ########
 
-  ############
-  # Firebase #
-  ############
-  firebase_core: ^1.21.1
-  firebase_auth: ^3.7.0 # authentication
-  cloud_firestore: ^3.4.6 # firestore database
-  firebase_messaging: ^13.0.0 # notifications
-  firebase_analytics: ^9.3.3 # analytics
-  firebase_crashlytics: ^2.8.9 # crashlytics
+  hms_models:
+    git: https://github.com/patelmeet341993/hms_models
 
   ###########
   # Logging #
@@ -64,6 +57,8 @@ dependencies:
   font_awesome_flutter: ^10.1.0
   flutter_svg: ^1.1.4
   fluttertoast: ^8.0.9
+  mobile_scanner: ^2.0.0
+  lottie: ^1.4.2
   flutter_feather_icons: ^2.0.0+1
 
   ####################
@@ -106,8 +101,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/
-    - assets/extra/
+   - assets/lotties/
+   - assets/
+   - assets/extra/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

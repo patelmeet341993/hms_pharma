@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hms_models/hms_models.dart';
+import 'package:hms_models/utils/size_config.dart';
 
-import '../../../utils/SizeConfig.dart';
 import 'MyCol.dart';
 import 'Properties.dart';
 import 'ScreenMedia.dart';
@@ -28,7 +29,7 @@ class MyRow extends StatelessWidget {
         for(MyCol col in children){
           if(getDisplayValue(col.display)[screenMediaType]==DisplayType.Block) {
             innerChildren.add(Container(
-              padding: Spacing.x(spacing??8),
+              padding: Spacing.x(spacing),
               width: getWidthFromFlex(constraints.maxWidth,
                   getFlexValue(col.flex)[screenMediaType] ?? 0),
               child: col,
@@ -40,9 +41,9 @@ class MyRow extends StatelessWidget {
               border: Border.all(color: boxBorderColor)
           ),
           child: Wrap(
-            crossAxisAlignment: wrapCrossAlignment??WrapCrossAlignment.start,
-            alignment: wrapAlignment??WrapAlignment.start,
-            runSpacing: runSpacing??16,
+            crossAxisAlignment: wrapCrossAlignment,
+            alignment: wrapAlignment,
+            runSpacing: runSpacing,
             children: innerChildren,
           ),
         );
@@ -83,12 +84,12 @@ class MyRow extends StatelessWidget {
   }
 
   Map<ScreenMediaType,DisplayType> getDisplayValue(Map<ScreenMediaType,DisplayType>? display){
-    print("errrorrrr ; ${display}");
+    MyPrint.printOnConsole("errrorrrr ; $display");
     if(display == null){
       Map<ScreenMediaType,DisplayType> dispalyTemp = {ScreenMediaType.XS:DisplayType.Block};
       display = dispalyTemp;
     }
-    print("errrorrrr ; ${display}");
+    MyPrint.printOnConsole("errrorrrr ; $display");
 
     // display ??= {ScreenMediaType.XS:DisplayType.Block};
     if(display[ScreenMediaType.XS]==null) {
