@@ -14,13 +14,13 @@ import 'package:uuid/uuid.dart';
 
 import '../../configs/app_strings.dart';
 import '../../configs/styles.dart';
-import '../../models/dashboard_prescription_model.dart';
 import '../../models/patient_model.dart';
 import '../../models/visit_model/visit_model.dart';
 import '../../utils/logger_service.dart';
 import '../../utils/my_safe_state.dart';
 import '../common/app_text_form_field.dart';
 import '../common/components/primary_text.dart';
+import '../common/models/dashboard_prescription_model.dart';
 
 class VisitDetailsScreen extends StatefulWidget {
   static const String routeName = "/VisitDetailsScreen";
@@ -118,8 +118,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
       pharmaBillingModel.baseAmount = withoutGst;
       pharmaBillingModel.createdTime = Timestamp.now();
       pharmaBillingModel.items =
-          dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel)
-              .toList();
+          dashBoardPrescriptionModels.map((e) => e.pharmaBillingItemModel).toList();
 
       visitModel?.pharmaBilling = pharmaBillingModel;
       visitModel?.treatmentActivity = [TreatmentActivityModel(createdTime: Timestamp.now(),activityMessage: TreatmentActivityStreamEnum.billPay)];
@@ -178,7 +177,7 @@ class _VisitDetailsScreenState extends State<VisitDetailsScreen> with MySafeStat
               pharmaBillingItemModel: PharmaBillingItemModel(
                 dose: element.dose,
                 medicineName: element.medicineName,
-                discount: element.discount,
+                // discount: element.discount,
                 finalAmount: element.finalAmount,
                 price: element.price,
               ),
