@@ -395,7 +395,9 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
     }
 
     return Scaffold(
+
       floatingActionButton: floatingActionButton,
+
       body: Row(
         children: <Widget>[
           ValueListenableBuilder<bool>(
@@ -449,7 +451,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /*Container(
+                  Container(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: DashboardHeader(title: titles[_currentIndex],
@@ -484,7 +486,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> with Si
                         ),
                         isActionVisible: true),
                     ),
-                  ),*/
+                  ),
                   Expanded(
                     child: screens[_currentIndex],
                   ),
